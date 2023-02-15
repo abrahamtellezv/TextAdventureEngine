@@ -8,7 +8,7 @@ namespace TextAdventures
         static void Main()
         {
             Player player = new();
-            TextParser parser = new TextParser();
+            TextParser parser = new();
             Console.Title = "Hello...";
             Dictionary<string, Room> rooms = InitializeRooms();
             Room currentRoom = rooms["outside"];
