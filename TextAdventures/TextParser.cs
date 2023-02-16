@@ -1,8 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Diagnostics.Tracing;
 using System.Linq;
 using System.Numerics;
+using System.Security.Cryptography;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -47,13 +49,7 @@ namespace TextAdventures
                     break;
                 case "q":
                 case "quit":
-                    if (words.Length == 1)
-                    {
-                        Console.WriteLine("Goodbye...");
-                        Environment.Exit(0);
-                    }
-                    else
-                        Console.Write(_incorrectCommand);
+                    PromptQuit(words);
                     break;
                 case "l":
                     player.Look(currentRoom, readDescription: true);
@@ -103,10 +99,51 @@ namespace TextAdventures
                 case "take":
                     HandleItemTaking(words, player, currentRoom);
                     break;
+                case "r":
+                case "restart":
+                    PromptRestart(words);
+                    break;
                 default:
                     Console.Write(_incorrectCommand);
                     break;
             }
+        }
+
+        private static void PromptQuit(string[] words)
+        {
+            if (words.Length > 1)
+            {
+                Console.WriteLine(_incorrectCommand);
+                return;
+            }
+            Console.Write("Are you sure you want to quit? Press 'y' to do so.\n> ");
+            string? answer = Console.ReadLine();
+            if (answer == "Y" || answer == "y")
+            {
+                Console.Write("Goodbye.\n\n\n\n\n");
+                Environment.Exit(0);
+            }
+            else
+                Console.Write("\n\n> ");
+        }
+
+        private static void PromptRestart(string[] words)
+        {
+            if (words.Length > 1)
+            {
+                Console.WriteLine(_incorrectCommand);
+                return;
+            }
+            Console.Write("Are you sure you want to restart? Press 'y' to do so.\n> ");
+            string? answer = Console.ReadLine();
+            if (answer == "Y" || answer == "y")
+            {
+                Console.Clear();
+                Process.Start(Process.GetCurrentProcess().MainModule.FileName);
+                Environment.Exit(0);
+            }
+            else
+                Console.Write("\n\n> ");
         }
 
         private static void HandleItemTaking(string[] words, Player player, Room currentRoom)
@@ -122,7 +159,7 @@ namespace TextAdventures
                     return;
                 }
                 item = item.ToLower().Trim();
-                if (item[..3] == "the ")
+                if (item[..4] == "the ")
                     item = item[4..];
             }
             else

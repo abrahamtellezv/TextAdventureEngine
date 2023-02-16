@@ -23,7 +23,7 @@ namespace TextAdventures
             Console.WriteLine("Inventory:");
             foreach (var item in _inventory)
             {
-                Console.WriteLine($"A {item.Value.Name}");
+                Console.WriteLine($"- {item.Value.Name}");
             }
             Console.Write("\n\n> ");
         }
@@ -38,12 +38,13 @@ namespace TextAdventures
         {
             if (!room.Items.ContainsKey(item))
             {
-                Console.WriteLine($"There's no {item} here.");
+                Console.Write($"There's no {item} here.\n\n> ");
                 return;
             }
 
             _inventory.Add(item, room.Items[item]);
             room.Items.Remove(item);
+            Console.Write($"You took the {item}.\n\n> ");
         }
 
         public void Look(Room room, bool readDescription)
