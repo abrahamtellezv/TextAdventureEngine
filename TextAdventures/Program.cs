@@ -21,11 +21,8 @@ namespace TextAdventures
             {
                 string[] words = parser.PrepareText(Console.ReadLine());
                 parser.ParseText(words, player, ref currentRoom);
-                //ParseText(Console.ReadLine(), player, ref currentRoom);
             }
         }
-
-
 
         private static Dictionary<string, Room> InitializeRooms()
         {
@@ -59,137 +56,40 @@ namespace TextAdventures
             Room bathroom = new("Bathroom", "Still steamy... somehow...");
             rooms.Add("bathroom", bathroom);
 
-            outside.Exits.Add("n", entrance);
-            entrance.Exits.Add("s", outside);
-            entrance.Exits.Add("u", study);
-            entrance.Exits.Add("n", livingRoom);
-            entrance.Exits.Add("e", kitchen);
-            entrance.Exits.Add("d", downstairsBathroom);
-            downstairsBathroom.Exits.Add("u", entrance);
-            livingRoom.Exits.Add("s", entrance);
-            livingRoom.Exits.Add("e", diningRoom);
-            livingRoom.Exits.Add("n", garden);
-            diningRoom.Exits.Add("w", livingRoom);
-            diningRoom.Exits.Add("s", kitchen);
-            diningRoom.Exits.Add("n", garden);
-            garden.Exits.Add("sw", livingRoom);
-            garden.Exits.Add("se", diningRoom);
-            kitchen.Exits.Add("n", diningRoom);
-            kitchen.Exits.Add("w", entrance);
-            kitchen.Exits.Add("s", laundryRoom);
-            laundryRoom.Exits.Add("n", kitchen);
-            laundryRoom.Exits.Add("s", serviceArea);
-            serviceArea.Exits.Add("n", laundryRoom);
-            study.Exits.Add("d", entrance);
-            study.Exits.Add("n", bathroom);
-            study.Exits.Add("e", bedroom);
-            study.Exits.Add("s", balcony);
-            study.Exits.Add("w", bigBedroom);
-            bigBedroom.Exits.Add("e", study);
-            balcony.Exits.Add("n", study);
-            bedroom.Exits.Add("w", study);
-            bathroom.Exits.Add("s", study);
+            outside.AddExit("n", entrance);
+            entrance.AddExit("s", outside);
+            entrance.AddExit("u", study);
+            entrance.AddExit("n", livingRoom);
+            entrance.AddExit("e", kitchen);
+            entrance.AddExit("d", downstairsBathroom);
+            downstairsBathroom.AddExit("u", entrance);
+            livingRoom.AddExit("s", entrance);
+            livingRoom.AddExit("e", diningRoom);
+            livingRoom.AddExit("n", garden);
+            diningRoom.AddExit("w", livingRoom);
+            diningRoom.AddExit("s", kitchen);
+            diningRoom.AddExit("n", garden);
+            garden.AddExit("sw", livingRoom);
+            garden.AddExit("se", diningRoom);
+            kitchen.AddExit("n", diningRoom);
+            kitchen.AddExit("w", entrance);
+            kitchen.AddExit("s", laundryRoom);
+            laundryRoom.AddExit("n", kitchen);
+            laundryRoom.AddExit("s", serviceArea);
+            serviceArea.AddExit("n", laundryRoom);
+            study.AddExit("d", entrance);
+            study.AddExit("n", bathroom);
+            study.AddExit("e", bedroom);
+            study.AddExit("s", balcony);
+            study.AddExit("w", bigBedroom);
+            bigBedroom.AddExit("e", study);
+            balcony.AddExit("n", study);
+            bedroom.AddExit("w", study);
+            bathroom.AddExit("s", study);
 
-            entrance.Items.Add("keys", new Item("keys", "A set of keys, to the front door and who know what else", "There's a set of keys on the white table next to the door"));
+            entrance.AddItem("keys", "A set of keys, to the fron door and who knows what else", "There's a set of keys on the white table next to the door");
 
             return rooms;
         }
-        //public static void ParseText(string? input, Player player, ref Room currentRoom)
-        //{
-        //    string errorMessage = "I don't understand that command.\n\n> ";
-
-        //    if (string.IsNullOrWhiteSpace(input))
-        //    {
-        //        Console.Write(errorMessage);
-        //        return;
-        //    }
-
-        //    string abridgedInput = input.Replace("the", null).ToLower();
-        //    string[] words = abridgedInput.Split(' ');
-        //    switch (words[0])
-        //    {
-        //        case "h":
-        //        case "help":
-        //            if (words.Length == 1)
-        //                GiveHelp();
-        //            else
-        //                Console.Write(errorMessage);
-        //            break;
-        //        case "q":
-        //        case "quit":
-        //            if (words.Length == 1)
-        //            {
-        //                Console.WriteLine("Goodbye...");
-        //                Environment.Exit(0);
-        //            }
-        //            else
-        //                Console.Write(errorMessage);
-        //            break;
-        //        case "l":
-        //            player.Look(currentRoom, readDescription: true);
-        //            break;
-        //        case "look":
-        //            if (words.Length == 1 || (words.Length == 2 && words[1] == "around"))
-        //                player.Look(currentRoom, readDescription: true);
-        //            else
-        //                Console.Write(errorMessage);
-        //            break;
-        //        case "i":
-        //        case "inventory":
-        //            player.CheckInventory();
-        //            break;
-        //        case "take":
-        //            break;
-        //        case "examine":
-        //        case "u":
-        //        case "d":
-        //        case "n":
-        //        case "e":
-        //        case "s":
-        //        case "w":
-        //        case "ne":
-        //        case "nw":
-        //        case "se":
-        //        case "sw":
-        //        case "up":
-        //        case "down":
-        //        case "north":
-        //        case "east":
-        //        case "south":
-        //        case "northeast":
-        //        case "northwest":
-        //        case "southeast":
-        //        case "southwest":
-        //        case "west":
-        //            if (words.Length > 1)
-        //                Console.WriteLine(errorMessage);
-        //            else
-        //                currentRoom = player.ChangeRoom(words[0], currentRoom);
-        //            break;
-        //        case "go":
-        //            if (words.Length == 1)
-        //                Console.Write("Go where?\n\n> ");
-        //            else
-        //                Console.WriteLine();
-        //            break;
-        //        default:
-        //            Console.Write(errorMessage);
-        //            break;
-        //    }
-        //}
-        //public static void GiveHelp()
-        //{
-        //    string help = "Commands I understand:\n" +
-        //        "  h, help:                 provide brief instructions\n" +
-        //        "  [d]irection,\n" +
-        //        "  [direction],\n" +
-        //        "  go [direction]:          move in one of ten possible directions (up, down, north, west, southeast...)\n" +
-        //        "  l, look, look around:    look around the room, describing it and any objects in it\n" +
-        //        "  take [item]:             take item from room if possible\n" +
-        //        "  examine [item]:          get a description of said item\n" +
-        //        "  i, inventory:            check your inventory\n" +
-        //        "  q, quit:                 exit the game\n\n> ";
-        //    Console.Write(help);
-        //}
     }
 }

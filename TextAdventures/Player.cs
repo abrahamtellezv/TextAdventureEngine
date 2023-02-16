@@ -49,7 +49,7 @@ namespace TextAdventures
         public void Look(Room room, bool readDescription)
         {
             Console.WriteLine($"{room.Name}");
-            if (readDescription)
+            if (readDescription )
                 Console.Write($"{room.Description}");
             foreach (var item in room.Items) 
             {
@@ -60,11 +60,6 @@ namespace TextAdventures
 
         public Room ChangeRoom(string direction, Room currentRoom)
         {
-            if (direction.Length > 5)
-                direction = direction[..2];
-            else if (direction.Length > 2)
-                direction = direction[..1];
-
             if (!currentRoom.Exits.ContainsKey(direction))
             {
                 Console.Write("You can't go in that direction.\n\n> ");
@@ -73,8 +68,7 @@ namespace TextAdventures
             }
             Room newRoom = currentRoom.Exits[direction];
             Look(newRoom, readDescription: !newRoom.Visited);
-            if (!newRoom.Visited)
-                newRoom.Visited = true;
+            newRoom.Visited = true;
             Console.Title = newRoom.Name;
             return newRoom;
         }

@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Diagnostics.Tracing;
 using System.Linq;
+using System.Numerics;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -9,7 +10,8 @@ namespace TextAdventures
 {
     class TextParser
     {
-        static readonly string _errorMessage = "I don't understand that command.\n\n> ";
+        static readonly string _incorrectCommand = "I don't understand that command.\n\n> ";
+        static readonly string _noCommand = "No command was given.\n\n> ";
 
         public TextParser()
         {
@@ -22,7 +24,7 @@ namespace TextAdventures
             {
                 return Array.Empty<string>();
             }
-            string[] words = input.Replace("the",null).ToLower().Split(' ');
+            string[] words = input.ToLower().Replace(" the "," ").Split(' ');
             return words;
         }
 
@@ -30,7 +32,7 @@ namespace TextAdventures
         {
             if (words.Length == 0)
             {
-                Console.Write(_errorMessage);
+                Console.Write(_noCommand);
                 return;
             }
 
@@ -41,7 +43,7 @@ namespace TextAdventures
                     if (words.Length == 1)
                         GiveHelp();
                     else
-                        Console.Write(_errorMessage);
+                        Console.Write(_incorrectCommand);
                     break;
                 case "q":
                 case "quit":
@@ -51,7 +53,7 @@ namespace TextAdventures
                         Environment.Exit(0);
                     }
                     else
-                        Console.Write(_errorMessage);
+                        Console.Write(_incorrectCommand);
                     break;
                 case "l":
                     player.Look(currentRoom, readDescription: true);
@@ -60,39 +62,36 @@ namespace TextAdventures
                     if (words.Length == 1 || (words.Length == 2 && words[1] == "around"))
                         player.Look(currentRoom, readDescription: true);
                     else
-                        Console.Write(_errorMessage);
+                        Console.Write(_incorrectCommand);
                     break;
                 case "i":
                 case "inventory":
                     player.CheckInventory();
                     break;
-                case "take":
-                    break;
-                case "examine":
                 case "u":
                 case "d":
                 case "n":
                 case "e":
                 case "s":
                 case "w":
-                case "ne":
-                case "nw":
-                case "se":
-                case "sw":
                 case "up":
                 case "down":
                 case "north":
                 case "east":
                 case "south":
+                case "west":
+                case "ne":
+                case "nw":
+                case "se":
+                case "sw":
                 case "northeast":
                 case "northwest":
                 case "southeast":
                 case "southwest":
-                case "west":
                     if (words.Length > 1)
-                        Console.WriteLine(_errorMessage);
+                        Console.WriteLine(_incorrectCommand);
                     else
-                        currentRoom = player.ChangeRoom(words[0], currentRoom);
+                    HandleRoomChanging(words, player, ref currentRoom);
                     break;
                 case "go":
                     if (words.Length == 1)
@@ -100,10 +99,50 @@ namespace TextAdventures
                     else
                         ParseText(words[1..], player, ref currentRoom);
                     break;
+                case "t":
+                case "take":
+                    HandleItemTaking(words, player, currentRoom);
+                    break;
                 default:
-                    Console.Write(_errorMessage);
+                    Console.Write(_incorrectCommand);
                     break;
             }
+        }
+
+        private static void HandleItemTaking(string[] words, Player player, Room currentRoom)
+        {
+            string? item = string.Empty;
+            if (words.Length == 1)
+            {
+                Console.Write("Take what?\n\n> ");
+                item = Console.ReadLine();
+                if (string.IsNullOrWhiteSpace(item))
+                {
+                    Console.Write(_incorrectCommand);
+                    return;
+                }
+                item = item.ToLower().Trim();
+                if (item[..3] == "the ")
+                    item = item[4..];
+            }
+            else
+                foreach (string word in words.Skip(1))
+                {
+                    item += $"{word} ";
+                }
+            player.TakeItem(item.Trim(), currentRoom);
+        }
+
+        private static void HandleRoomChanging(string[] words, Player player, ref Room currentRoom)
+        {
+            string direction;
+            if (words[0].Length > 5)
+                direction = $"{words[0][..1]}{words[0][5]}";
+            else if (words[0].Length == 2 && words[0] != "up")
+                direction = words[0];
+            else
+                direction = words[0][..1];
+            currentRoom = player.ChangeRoom(direction, currentRoom);
         }
 
         private static void GiveHelp()
@@ -117,8 +156,11 @@ namespace TextAdventures
                 "  take [item]:             take item from room if possible\n" +
                 "  examine [item]:          get a description of said item\n" +
                 "  i, inventory:            check your inventory\n" +
-                "  q, quit:                 exit the game\n\n> ";
+                "  q, quit:                 exit the game\n\n";
+            Console.ForegroundColor = ConsoleColor.DarkGray;
             Console.Write(help);
+            Console.ForegroundColor = ConsoleColor.White;
+            Console.Write("> ");
         }
     }
 }

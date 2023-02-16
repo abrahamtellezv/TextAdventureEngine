@@ -8,10 +8,10 @@ namespace TextAdventures
 {
     internal class Room
     {
-        public string Name { get; set; }
-        public string Description { get; set; }
-        public Dictionary<string, Room> Exits { get; set; }
-        public Dictionary<string, Item> Items { get; set; }
+        public string Name { get; private set; }
+        public string Description { get; private set; }
+        public Dictionary<string, Room> Exits { get; private set; }
+        public Dictionary<string, Item> Items { get; private set; }
         public bool Visited { get; set; }
 
         public Room(string name, string description)
@@ -21,5 +21,15 @@ namespace TextAdventures
             Exits = new Dictionary<string, Room>();
             Items = new Dictionary<string, Item>();
         } 
+
+        public void AddExit(string direction, Room room)
+        {
+            Exits.Add(direction, room);
+        }
+
+        public void AddItem(string name, string description, string originalLocationDescription)
+        {
+            Items.Add(name, new Item(name, description, originalLocationDescription));
+        }
     }
 }
