@@ -54,14 +54,12 @@ namespace TextAdventures
         public void Look(Room room, bool readDescription)
         {
             Console.WriteLine($"{room.Name}");
+            string text = string.Empty;
             if (readDescription || _verbose)
-                TextWriter.Write($"{room.Description}");
-            string items = string.Empty;
+                text += $"{room.Description} ";
             foreach (var item in room.Items)
-            {
-                items += $"{item.Value.OriginalLocationDescription}. ";
-            }
-            TextWriter.Write(items);
+                text += $"{item.Value.OriginalLocationDescription}. ";
+            TextWriter.Write(text);
             Console.Write("\n\n> ");
         }
 

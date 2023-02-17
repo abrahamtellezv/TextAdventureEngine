@@ -19,7 +19,7 @@ namespace TextAdventures
         {
         }
 
-        public string[] PrepareText(string? input)
+        public static string[] PrepareText(string? input)
         {
             if (string.IsNullOrWhiteSpace(input))
                 return Array.Empty<string>();
@@ -109,13 +109,14 @@ namespace TextAdventures
                 Console.WriteLine(_incorrectCommand);
                 return;
             }
-            string help = "Commands I understand:\n" +
+            string help = "\nCommands I understand:\n" +
                 "  h, help:                 provide brief instructions\n" +
                 "  [d]irection,\n" +
                 "  [direction],\n" +
-                "  go [direction]:          move in one of ten possible directions (up, down, north, west, southeast...)\n" +
-                "  l, look, look around:    look around the room, describing it and any objects in it\n" +
-                "  take [item]:             take item from room if possible\n" +
+                "  go [direction]:          move in one of ten possible directions: up, down,\n" +
+                "                           north, west, southeast, etc.\n" +
+                "  l, look, look around:    describe the room you're in and any objects in it\n" +
+                "  take [item]:             take item from room or container if possible\n" +
                 "  examine [item]:          get a description of said item\n" +
                 "  i, inventory:            check your inventory\n" +
                 "  verbose:                 describe rooms every time you enter them\n" +
@@ -124,7 +125,7 @@ namespace TextAdventures
             Console.ForegroundColor = ConsoleColor.DarkGray;
             Console.Write(help);
             Console.ForegroundColor = ConsoleColor.White;
-            TextWriter.Write("> ");
+            Console.Write("> ");
         }
 
         private static void HandleItemTaking(string[] words, Player player, Room currentRoom)
@@ -205,7 +206,13 @@ namespace TextAdventures
             if (answer == "Y" || answer == "y")
             {
                 Console.Clear();
-                Process.Start(Environment.ProcessPath);
+                string? path = Environment.ProcessPath;
+                if (string.IsNullOrWhiteSpace(path))
+                {
+                    Console.Write("There seems to be some problem restarting.\nIf you with to restart, quit the game and start it again manually.\n\n> ");
+                    return;
+                }
+                Process.Start(path);
                 Environment.Exit(0);
             }
             else

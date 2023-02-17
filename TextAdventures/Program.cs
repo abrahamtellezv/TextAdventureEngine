@@ -21,7 +21,7 @@ namespace TextAdventures
             string[] words;
             while (true)
             {
-                words = parser.PrepareText(Console.ReadLine());
+                words = TextParser.PrepareText(Console.ReadLine());
                 parser.ParseText(words, player, ref currentRoom);
             }
         }
