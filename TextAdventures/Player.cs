@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Security.Cryptography.X509Certificates;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -9,6 +10,7 @@ namespace TextAdventures
     internal class Player
     {
         readonly Dictionary<string, Item> _inventory;
+        bool _verbose;
 
         public Player()
         {
@@ -16,52 +18,6 @@ namespace TextAdventures
                 {
                     { "wood", new Item("small piece of wood", "You don't know why, but it may be a good idea to hold on to it", "") }
                 };
-        }
-
-        public void CheckInventory()
-        {
-            Console.WriteLine("Inventory:");
-            foreach (var item in _inventory)
-            {
-                Console.WriteLine($"- {item.Value.Name}");
-            }
-            Console.Write("\n\n> ");
-        }
-
-        public void ExamineItem(string item)
-        {
-            Console.WriteLine($"{_inventory[item].ItemDescription}");
-            Console.Write("\n\n> ");
-        }
-
-        public void TakeItem(string item, Room room)
-        {
-            if (!room.Items.ContainsKey(item))
-            {
-                Console.Write($"There's no {item} here.\n\n> ");
-                return;
-            }
-            if (_inventory.ContainsKey(item))
-            {
-                Console.Write($"You already have the {item}.\n\n> ");
-                return;
-            }
-
-            _inventory.Add(item, room.Items[item]);
-            room.Items.Remove(item);
-            Console.Write($"You took the {item}.\n\n> ");
-        }
-
-        public void Look(Room room, bool readDescription)
-        {
-            Console.WriteLine($"{room.Name}");
-            if (readDescription )
-                Console.Write($"{room.Description}");
-            foreach (var item in room.Items) 
-            {
-                Console.Write($"{item.Value.OriginalLocationDescription}. ");
-            }
-            Console.Write("\n\n> ");
         }
 
         public Room ChangeRoom(string direction, Room currentRoom)
@@ -78,5 +34,67 @@ namespace TextAdventures
             Console.Title = newRoom.Name;
             return newRoom;
         }
+
+        public void CheckInventory()
+        {
+            Console.WriteLine("Inventory:");
+            foreach (var item in _inventory)
+            {
+                Console.WriteLine($"- {item.Value.Name}");
+            }
+            Console.Write("\n\n> ");
+        }
+
+        public void ExamineItem(string item)
+        {
+            TextWriter.Write($"{_inventory[item].ItemDescription}");
+            Console.Write("\n\n> ");
+        }
+
+        public void Look(Room room, bool readDescription)
+        {
+            Console.WriteLine($"{room.Name}");
+            if (readDescription || _verbose)
+                TextWriter.Write($"{room.Description}");
+            string items = string.Empty;
+            foreach (var item in room.Items)
+            {
+                items += $"{item.Value.OriginalLocationDescription}. ";
+            }
+            TextWriter.Write(items);
+            Console.Write("\n\n> ");
+        }
+
+        public void TakeItem(string item, Room room)
+        {
+            if (_inventory.ContainsKey(item))
+            {
+                Console.Write($"You already have the {item}.\n\n> ");
+                return;
+            }
+            if (!room.Items.ContainsKey(item))
+            {
+                Console.Write($"There's no {item} here.\n\n> ");
+                return;
+            }
+
+            _inventory.Add(item, room.Items[item]);
+            room.Items.Remove(item);
+            Console.Write($"You took the {item}.\n\n> ");
+        }
+
+        public void SetVerbose(string[] words, bool beVerbose)
+        {
+            if (words.Length > 1) 
+            {
+                Console.Write("I don't understand that command");
+                return;
+            }
+            _verbose = beVerbose;
+            string text = _verbose ? "Long descriptions enabled." : "Short descriptions enabled.";
+            Console.Write($"{text}\n\n> ");
+        }
+
+        
     }
 }

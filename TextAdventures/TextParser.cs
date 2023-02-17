@@ -90,6 +90,12 @@ namespace TextAdventures
                 case "restart":
                     PromptRestart(words);
                     break;
+                case "brief":
+                    player.SetVerbose(words, false);
+                    break;
+                case "verbose":
+                    player.SetVerbose(words, true);
+                    break;
                 default:
                     Console.Write(_incorrectCommand);
                     break;
@@ -112,11 +118,13 @@ namespace TextAdventures
                 "  take [item]:             take item from room if possible\n" +
                 "  examine [item]:          get a description of said item\n" +
                 "  i, inventory:            check your inventory\n" +
+                "  verbose:                 describe rooms every time you enter them\n" +
+                "  brief:                   describe rooms only the first time you enter them\n" +
                 "  q, quit:                 exit the game\n\n";
             Console.ForegroundColor = ConsoleColor.DarkGray;
             Console.Write(help);
             Console.ForegroundColor = ConsoleColor.White;
-            Console.Write("> ");
+            TextWriter.Write("> ");
         }
 
         private static void HandleItemTaking(string[] words, Player player, Room currentRoom)

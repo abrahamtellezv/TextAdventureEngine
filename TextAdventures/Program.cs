@@ -16,7 +16,8 @@ namespace TextAdventures
             Console.ForegroundColor = ConsoleColor.DarkGray;
             Console.Write("    (Type \"help\" for instructions)\n\n\n");
             Console.ForegroundColor = ConsoleColor.White;
-            Console.Write("You stand before the slightly ajar door at 320 Real de Montes Urales. While it doesn't really seem that inviting, the chilly air is telling you to go inside.\n\n> ");
+            TextWriter.Write("You stand before the slightly ajar door at 320 Real de Montes Urales. While it doesn't really seem that inviting, the chilly air is telling you to go inside.");
+            Console.Write("\n\n> ");
             string[] words;
             while (true)
             {
