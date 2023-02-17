@@ -41,6 +41,11 @@ namespace TextAdventures
                 Console.Write($"There's no {item} here.\n\n> ");
                 return;
             }
+            if (_inventory.ContainsKey(item))
+            {
+                Console.Write($"You already have the {item}.\n\n> ");
+                return;
+            }
 
             _inventory.Add(item, room.Items[item]);
             room.Items.Remove(item);
