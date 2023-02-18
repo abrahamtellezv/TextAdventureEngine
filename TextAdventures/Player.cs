@@ -63,6 +63,18 @@ namespace TextAdventures
             Console.Write("\n\n> ");
         }
 
+        public void SetVerbose(string[] words, bool beVerbose)
+        {
+            if (words.Length > 1)
+            {
+                Console.Write("I don't understand that command");
+                return;
+            }
+            _verbose = beVerbose;
+            string text = _verbose ? "Long descriptions enabled." : "Short descriptions enabled.";
+            Console.Write($"{text}\n\n> ");
+        }
+
         public void TakeItem(string item, Room room)
         {
             if (_inventory.ContainsKey(item))
@@ -80,19 +92,6 @@ namespace TextAdventures
             room.Items.Remove(item);
             Console.Write($"You took the {item}.\n\n> ");
         }
-
-        public void SetVerbose(string[] words, bool beVerbose)
-        {
-            if (words.Length > 1) 
-            {
-                Console.Write("I don't understand that command");
-                return;
-            }
-            _verbose = beVerbose;
-            string text = _verbose ? "Long descriptions enabled." : "Short descriptions enabled.";
-            Console.Write($"{text}\n\n> ");
-        }
-
         
     }
 }

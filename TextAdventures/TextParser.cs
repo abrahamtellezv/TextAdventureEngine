@@ -91,10 +91,8 @@ namespace TextAdventures
                     PromptRestart(words);
                     break;
                 case "brief":
-                    player.SetVerbose(words, false);
-                    break;
                 case "verbose":
-                    player.SetVerbose(words, true);
+                    player.SetVerbose(words, words[0] == "verbose");
                     break;
                 default:
                     Console.Write(_incorrectCommand);
