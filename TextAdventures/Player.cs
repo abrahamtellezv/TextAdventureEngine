@@ -16,7 +16,7 @@ namespace TextAdventures
         {
             _inventory = new Dictionary<string, Item>
                 {
-                    { "wood", new Item("small piece of wood", "You don't know why, but it may be a good idea to hold on to it", "") }
+                    { "wood", new Item("small piece of wood", "You don't know why, but it may be a good idea to hold on to it", "", true) }
                 };
         }
 
@@ -77,6 +77,11 @@ namespace TextAdventures
 
         public void TakeItem(string item, Room room)
         {
+            if (string.IsNullOrWhiteSpace(item))
+            {
+                Console.Write("I don't understand that command.\n\n> ");
+                return;
+            }
             if (_inventory.ContainsKey(item))
             {
                 Console.Write($"You already have the {item}.\n\n> ");
@@ -84,7 +89,7 @@ namespace TextAdventures
             }
             if (!room.Items.ContainsKey(item))
             {
-                Console.Write($"There's no {item} here.\n\n> ");
+                Console.Write($"There's no '{item}' here.\n\n> ");
                 return;
             }
 

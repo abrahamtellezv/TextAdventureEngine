@@ -6,6 +6,7 @@ using System.Linq;
 using System.Numerics;
 using System.Security.Cryptography;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 
 namespace TextAdventures
@@ -13,29 +14,19 @@ namespace TextAdventures
     class TextParser
     {
         static readonly string _incorrectCommand = "I don't understand that command.\n\n> ";
-        static readonly string _noCommand = "No command was given.\n\n> ";
 
         public TextParser()
         {
         }
 
-        public static string[] PrepareText(string? input)
+        public static string PrepareText(string input)
         {
-            if (string.IsNullOrWhiteSpace(input))
-                return Array.Empty<string>();
-
-            string[] words = input.ToLower().Replace(" the ", " ").Split(' ');
-            return words;
+            string pattern = @"\bthe\b";
+            return Regex.Replace(input.ToLower(), pattern, "").Trim();
         }
 
         public void ParseText(string[] words, Player player, ref Room currentRoom)
         {
-            if (words.Length == 0)
-            {
-                Console.Write(_noCommand);
-                return;
-            }
-
             switch (words[0])
             {
                 case "h":
@@ -82,10 +73,6 @@ namespace TextAdventures
                     else
                         ParseText(words[1..], player, ref currentRoom);
                     break;
-                case "t":
-                case "take":
-                    HandleItemTaking(words, player, currentRoom);
-                    break;
                 case "r":
                 case "restart":
                     PromptRestart(words);
@@ -93,6 +80,13 @@ namespace TextAdventures
                 case "brief":
                 case "verbose":
                     player.SetVerbose(words, words[0] == "verbose");
+                    break;
+                case "t":
+                case "take":
+                    player.TakeItem(RetrieveObjectFromInput(words,"Take"), currentRoom);
+                    break;
+                case "x":
+                case "examine":
                     break;
                 default:
                     Console.Write(_incorrectCommand);
@@ -117,8 +111,9 @@ namespace TextAdventures
                 "  take [item]:             take item from room or container if possible\n" +
                 "  examine [item]:          get a description of said item\n" +
                 "  i, inventory:            check your inventory\n" +
-                "  verbose:                 describe rooms every time you enter them\n" +
-                "  brief:                   describe rooms only the first time you enter them\n" +
+                "  verbose:                 describe rooms every time you enter\n" +
+                "  brief:                   describe rooms only the first time you enter\n" +
+                "  r, restart:              restart the game" +
                 "  q, quit:                 exit the game\n\n";
             Console.ForegroundColor = ConsoleColor.DarkGray;
             Console.Write(help);
@@ -126,27 +121,24 @@ namespace TextAdventures
             Console.Write("> ");
         }
 
-        private static void HandleItemTaking(string[] words, Player player, Room currentRoom)
+        private static string RetrieveObjectFromInput(string[] words, string verb)
         {
             string? item = string.Empty;
             if (words.Length == 1)
             {
-                Console.Write("Take what?\n\n> ");
+                Console.Write($"{verb} what?\n\n> ");
                 item = Console.ReadLine();
                 if (string.IsNullOrWhiteSpace(item))
-                {
-                    Console.Write(_incorrectCommand);
-                    return;
-                }
+                    return "";
+
                 item = item.ToLower().Trim();
-                if (item[..4] == "the ")
+                if (item.Length > 4 && item[..4] == "the ")
                     item = item[4..];
             }
             else
                 foreach (string word in words.Skip(1))
                     item += $"{word} ";
-
-            player.TakeItem(item.Trim(), currentRoom);
+            return item.Trim();
         }
 
         private static void HandleLooking(string[] words, Player player, Room currentRoom)

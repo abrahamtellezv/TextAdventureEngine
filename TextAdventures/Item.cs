@@ -8,14 +8,16 @@ namespace TextAdventures
 {
     internal class Item
     {
+        public bool IsTakeable { get; set; }
         public string Name { get; set; }
         public string OriginalLocationDescription { get; set; }
         public string ItemDescription { get; set; }
-        public Item(string name, string itemDescription, string originalLocationDescription)
+        public Item(string name, string itemDescription, string originalLocationDescription, bool isTakeable)
         {
             Name = name;
             ItemDescription = itemDescription;
             OriginalLocationDescription = originalLocationDescription;
+            IsTakeable = isTakeable;
         }
     }
 }

@@ -18,10 +18,17 @@ namespace TextAdventures
             Console.ForegroundColor = ConsoleColor.White;
             TextWriter.Write("You stand before the slightly ajar door at 320 Real de Montes Urales. While it doesn't really seem that inviting, the chilly air is telling you to go inside.");
             Console.Write("\n\n> ");
+            string? input;
             string[] words;
             while (true)
             {
-                words = TextParser.PrepareText(Console.ReadLine());
+                input = Console.ReadLine();
+                if (string.IsNullOrWhiteSpace(input))
+                {
+                    Console.Write("No command was given.\n\n> ");
+                    continue;
+                }
+                words = TextParser.PrepareText(input).Split(' ');
                 parser.ParseText(words, player, ref currentRoom);
             }
         }
@@ -31,7 +38,7 @@ namespace TextAdventures
             Dictionary<string, Room> rooms = new();
             Room outside = new("Outside", "You're outside the house, it's too dark to go wandering any further, you should go back inside.");
             rooms.Add("outside", outside);
-            Room entrance = new("Entrance", "The entrance to the house, you can see one of my threaded rainbow pieces here. There's a flight of stairs leading up to the study, while a small flight leads down to a bathroom. The living room lies to the north. To the east there's the kitchen.");
+            Room entrance = new("Entrance", "The entrance to the house, you can see one of my threaded rainbow pieces here. There's a flight of stairs leading up to the study, while a small flight leads down to a bathroom. The living room lies to the north. The smell of the kitchen comes from the east.");
             rooms.Add("entrance", entrance);
             Room downstairsBathroom = new("Downstairs bathroom", "This small bathroom was, somehow, one of the best rooms in the house. The stairs lead up to the entrance.");
             rooms.Add("downstairsBathroom", downstairsBathroom);
@@ -89,7 +96,7 @@ namespace TextAdventures
             bedroom.AddExit("w", study);
             bathroom.AddExit("s", study);
 
-            entrance.AddItem("keys", "A set of keys, to the fron door and who knows what else", "There's a set of keys on the white table next to the door");
+            entrance.AddItem("keys", "A set of keys, to the fron door and who knows what else", "There's a set of keys on the white table next to the door", true);
 
             return rooms;
         }
