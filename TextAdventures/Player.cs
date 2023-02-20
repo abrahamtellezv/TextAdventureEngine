@@ -77,11 +77,6 @@ namespace TextAdventures
 
         public void TakeItem(string item, Room room)
         {
-            if (string.IsNullOrWhiteSpace(item))
-            {
-                Console.Write("I don't understand that command.\n\n> ");
-                return;
-            }
             if (_inventory.ContainsKey(item))
             {
                 Console.Write($"You already have the {item}.\n\n> ");

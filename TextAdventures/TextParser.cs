@@ -83,7 +83,10 @@ namespace TextAdventures
                     break;
                 case "t":
                 case "take":
-                    player.TakeItem(RetrieveObjectFromInput(words,"Take"), currentRoom);
+                    string item = RetrieveObjectFromInput(words, "Take");
+                    if (string.IsNullOrWhiteSpace(item))
+                        return;
+                    player.TakeItem(item, currentRoom);
                     break;
                 case "x":
                 case "examine":
@@ -93,7 +96,7 @@ namespace TextAdventures
                     break;
             }
         }
-        
+
         private static void GiveHelp(string[] words)
         {
             if (words.Length != 1)
@@ -130,15 +133,13 @@ namespace TextAdventures
                 item = Console.ReadLine();
                 if (string.IsNullOrWhiteSpace(item))
                     return "";
-
-                item = item.ToLower().Trim();
-                if (item.Length > 4 && item[..4] == "the ")
-                    item = item[4..];
             }
             else
                 foreach (string word in words.Skip(1))
+                {
                     item += $"{word} ";
-            return item.Trim();
+                }
+            return PrepareText(item);
         }
 
         private static void HandleLooking(string[] words, Player player, Room currentRoom)
