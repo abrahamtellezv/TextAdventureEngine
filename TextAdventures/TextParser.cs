@@ -83,18 +83,32 @@ namespace TextAdventures
                     break;
                 case "t":
                 case "take":
-                    string item = RetrieveObjectFromInput(words, "Take");
-                    if (string.IsNullOrWhiteSpace(item))
-                        return;
-                    player.TakeItem(item, currentRoom);
+                    HandleTakingItem(words, player, currentRoom);
                     break;
                 case "x":
                 case "examine":
+                    HandleExaminingItem(words, player, currentRoom);
                     break;
                 default:
                     Console.Write(_incorrectCommand);
                     break;
             }
+        }
+
+        private static void HandleExaminingItem(string[] words, Player player, Room currentRoom)
+        {
+            string item = RetrieveObjectFromInput(words, "Examine");
+            if (string.IsNullOrWhiteSpace(item))
+                return;
+            player.ExamineItem(item, currentRoom);
+        }
+
+        private static void HandleTakingItem(string[] words, Player player, Room currentRoom)
+        {
+            string item = RetrieveObjectFromInput(words, "Take");
+            if (string.IsNullOrWhiteSpace(item))
+                return;
+            player.TakeItem(item, currentRoom);
         }
 
         private static void GiveHelp(string[] words)
@@ -200,7 +214,7 @@ namespace TextAdventures
                 string? path = Environment.ProcessPath;
                 if (string.IsNullOrWhiteSpace(path))
                 {
-                    Console.Write("There seems to be some problem restarting.\nIf you with to restart, quit the game and start it again manually.\n\n> ");
+                    Console.Write("There seems to be some problem restarting.\nIf you wish to restart, quit the game and start it again manually.\n\n> ");
                     return;
                 }
                 Process.Start(path);

@@ -96,7 +96,7 @@ namespace TextAdventures
             bedroom.AddExit("w", study);
             bathroom.AddExit("s", study);
 
-            entrance.AddItem("keys", "A set of keys, to the fron door and who knows what else", "There's a set of keys on the white table next to the door", true);
+            entrance.AddItem("keys", "A set of keys, to the front door and who knows what else.", "There's a set of keys on the white table next to the door.", true);
 
             return rooms;
         }
