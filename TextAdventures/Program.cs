@@ -37,32 +37,32 @@ namespace TextAdventures
         {
             Dictionary<string, Room> rooms = new();
             Room outside = new("Outside", "You're outside the house, it's too dark to go wandering any further, you should go back inside.");
-            rooms.Add("outside", outside);
             Room entrance = new("Entrance", "The entrance to the house, you can see one of my threaded rainbow pieces here. There's a flight of stairs leading up to the study, while a small flight leads down to a bathroom. The living room lies to the north. The smell of the kitchen comes from the east.");
-            rooms.Add("entrance", entrance);
             Room downstairsBathroom = new("Downstairs bathroom", "This small bathroom was, somehow, one of the best rooms in the house. The stairs lead up to the entrance.");
-            rooms.Add("downstairsBathroom", downstairsBathroom);
             Room garden = new("Garden", "Somehow the grass is still green in some patches, sadly, the potted plants and the trees have all died. The living and dining rooms lie to the southwest and southeast respectively");
-            rooms.Add("garden", garden);
             Room kitchen = new("Kitchen", "You can smell the years of cooking that have happened here. The entrance lies to the west. North is the dining room. The laundry room can be seen to the south.");
-            rooms.Add("kitchen", kitchen);
             Room laundryRoom = new("Laundry room", "The trusty old washing machine takes most of the space here. The kitchen is to the north. A door leads to the service area to the south.");
-            rooms.Add("laundry room", laundryRoom);
             Room livingRoom = new("Living room", "The couch has definitely seen better times and the tv doesn't seem to work anymore. You can see the dining room to the east and the entrance to the south.");
-            rooms.Add("living room", livingRoom);
             Room diningRoom = new("Dinning room", "There's food on the table, not that you should eat it, who knows how long it's been there. Walking west leads to the living room. The kitchen is to the south.");
-            rooms.Add("dining room", diningRoom);
             Room serviceArea = new("Service area", "There's a lot of junk here. The laundry room is up north.");
-            rooms.Add("service area", serviceArea);
             Room study = new("Study", "There's so many things on the desks it looks like a stationary shop. At least dusty and messy one. There's a bathroom to the north. You can see a faint green hue coming from the door to the east. Your bedroom was behind the eastern door. There's a door to the balcony south, next to the stairs leading down to the entrance.");
-            rooms.Add("study", study);
             Room balcony = new("Balcony", "Normally you'd be able to see the small park in front of the house, but for some reason, it's too dark to see right now.");
-            rooms.Add("balcony", balcony);
             Room bedroom = new("Bedroom", "The unmade bed has the lingering smell of the three of us...");
-            rooms.Add("bedroom", bedroom);
             Room bigBedroom = new("Big bedroom", "She had all sorts of stuff all over the place, she left it that way.");
-            rooms.Add("big bedroom", bigBedroom);
             Room bathroom = new("Bathroom", "Still steamy... somehow...");
+            rooms.Add("outside", outside);
+            rooms.Add("entrance", entrance);
+            rooms.Add("downstairsBathroom", downstairsBathroom);
+            rooms.Add("garden", garden);
+            rooms.Add("kitchen", kitchen);
+            rooms.Add("laundry room", laundryRoom);
+            rooms.Add("living room", livingRoom);
+            rooms.Add("dining room", diningRoom);
+            rooms.Add("service area", serviceArea);
+            rooms.Add("study", study);
+            rooms.Add("balcony", balcony);
+            rooms.Add("bedroom", bedroom);
+            rooms.Add("big bedroom", bigBedroom);
             rooms.Add("bathroom", bathroom);
 
             outside.AddExit("n", entrance);
@@ -96,7 +96,13 @@ namespace TextAdventures
             bedroom.AddExit("w", study);
             bathroom.AddExit("s", study);
 
-            entrance.AddItem("keys", "A set of keys, to the front door and who knows what else.", "There's a set of keys on the white table next to the door.", true);
+            Item keys = new("keys", "A set of keys, to the front door and who knows what else.", "There's a set of keys on the white table next to the door.", true);
+            Item threadPiece2 = new("thread work", "", "The second medium format piece I ever did, I remember feeling underwhelmed I finished it, it lacked something I couldn't, and still can't, put my finger on.", false);
+
+            entrance.AddItem("keys", keys);
+            entrance.AddItem("thread work", threadPiece2);
+
+            //work on a way to change how you retrieve items from input, should check a list of keywords saved inside each object, like in the case above, thread work should answer to thread work, work, or piece, dunno...
 
             return rooms;
         }

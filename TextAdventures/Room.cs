@@ -27,9 +27,9 @@ namespace TextAdventures
             Exits.Add(direction, room);
         }
 
-        public void AddItem(string name, string description, string originalLocationDescription, bool isTakeable)
+        public void AddItem(string name, Item item)
         {
-            Items.Add(name, new Item(name, description, originalLocationDescription, isTakeable));
+            Items.Add(name, item);
         }
     }
 }
