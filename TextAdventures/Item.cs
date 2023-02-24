@@ -8,16 +8,20 @@ namespace TextAdventures
 {
     internal class Item
     {
+        public HashSet<string> Keywords { get; private set; }
         public bool IsTakeable { get; set; }
-        public string Name { get; set; }
-        public string OriginalLocationDescription { get; set; }
-        public string ItemDescription { get; set; }
-        public Item(string name, string itemDescription, string originalLocationDescription, bool isTakeable)
+        public int Weight { get; private set; }
+        public string Name { get; private set; }
+        public string OriginalLocationDescription { get; private set; }
+        public string ExamineDescription { get; private set; }
+        public Item(string inventoryName, string examineDescription, string originalLocationDescription, bool isTakeable, int weight, HashSet<string> keywords)
         {
-            Name = name;
-            ItemDescription = itemDescription;
+            Name = inventoryName;
+            ExamineDescription = examineDescription;
             OriginalLocationDescription = originalLocationDescription;
             IsTakeable = isTakeable;
+            Weight = weight;
+            Keywords = keywords;
         }
     }
 }

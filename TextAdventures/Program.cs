@@ -9,9 +9,9 @@ namespace TextAdventures
         {
             Player player = new();
             TextParser parser = new();
-            Console.Title = "Hello...";
-            Dictionary<string, Room> rooms = InitializeRooms();
+            Dictionary<string, Room> rooms = CreateWorld();
             Room currentRoom = rooms["outside"];
+            Console.Title = "Hello...";
             Console.Write("Welcome to the text adventure game!");
             Console.ForegroundColor = ConsoleColor.DarkGray;
             Console.Write("    (Type \"help\" for instructions)\n\n\n");
@@ -33,7 +33,7 @@ namespace TextAdventures
             }
         }
 
-        private static Dictionary<string, Room> InitializeRooms()
+        private static Dictionary<string, Room> CreateWorld()
         {
             Dictionary<string, Room> rooms = new();
             Room outside = new("Outside", "You're outside the house, it's too dark to go wandering any further, you should go back inside.");
@@ -96,13 +96,13 @@ namespace TextAdventures
             bedroom.AddExit("w", study);
             bathroom.AddExit("s", study);
 
-            Item keys = new("keys", "A set of keys, to the front door and who knows what else.", "There's a set of keys on the white table next to the door.", true);
-            Item threadPiece2 = new("thread work", "", "The second medium format piece I ever did, I remember feeling underwhelmed I finished it, it lacked something I couldn't, and still can't, put my finger on.", false);
+            Item keys = new("keys", "A set of keys, to the front door and who knows what else.", "There's a set of keys on the white table next to the door.", isTakeable: false, 21, new HashSet<string> { "key", "keys" });
+            Item soda = new("can of soda", "A can of soda, \"Red Cola\" reads the label.", "On the floor you see a can of soda.", isTakeable: true, 1, new HashSet<string> { "can", "soda", "can of soda" });
+            Item cake = new("cake", "The remains of a chocolate cake, the resemblance to the one on Matilda is remarkable.", "There's some cake on the counter.", isTakeable: true, 100, new HashSet<string> { "cake" });
+            Item pen = new("pen", "A brown ballpoint pen, I've always liked this ink color, how didn't people think of this before.", "A pen is sitting on the table.", isTakeable: true, 10, new HashSet<string> { "pen" });
 
-            entrance.AddItem("keys", keys);
-            entrance.AddItem("thread work", threadPiece2);
-
-            //work on a way to change how you retrieve items from input, should check a list of keywords saved inside each object, like in the case above, thread work should answer to thread work, work, or piece, dunno...
+            entrance.AddItems(keys, soda, pen);
+            kitchen.AddItems(cake);
 
             return rooms;
         }

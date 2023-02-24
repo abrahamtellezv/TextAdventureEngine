@@ -11,7 +11,7 @@ namespace TextAdventures
         public string Name { get; private set; }
         public string Description { get; private set; }
         public Dictionary<string, Room> Exits { get; private set; }
-        public Dictionary<string, Item> Items { get; private set; }
+        public HashSet<Item> Items { get; private set; }
         public bool Visited { get; set; }
 
         public Room(string name, string description)
@@ -19,7 +19,9 @@ namespace TextAdventures
             Name = name;
             Description = description;
             Exits = new Dictionary<string, Room>();
-            Items = new Dictionary<string, Item>();
+            Items = new HashSet<Item>() { };
+            Item floor = new("floor", "Nothing remarkable about the ground here.", "", false, 0, new HashSet<string> { "floor", "ground" });
+            AddItems(floor);
         } 
 
         public void AddExit(string direction, Room room)
@@ -27,9 +29,12 @@ namespace TextAdventures
             Exits.Add(direction, room);
         }
 
-        public void AddItem(string name, Item item)
+        public void AddItems(params Item[] items)
         {
-            Items.Add(name, item);
+            foreach (Item item in items)
+            {
+                Items.Add(item);
+            }
         }
     }
 }

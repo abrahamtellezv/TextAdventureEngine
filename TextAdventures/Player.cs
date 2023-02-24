@@ -9,15 +9,14 @@ namespace TextAdventures
 {
     internal class Player
     {
-        readonly Dictionary<string, Item> _inventory;
+        readonly HashSet<Item> _inventory;
+        const int MaxWeight = 100;
+        int _currentWeight = 2;
         bool _verbose;
 
         public Player()
         {
-            _inventory = new Dictionary<string, Item>
-                {
-                    { "wood", new Item("small piece of wood", "You don't know why, but it may be a good idea to hold on to it.", "", true) }
-                };
+            _inventory = new HashSet<Item>{ new Item("small piece of wood", "You don't know why, but it may be a good idea to hold on to it.", "", true, 2, new HashSet<string>{ "wood", "piece of wood", "wood piece"}) };
         }
 
         public Room ChangeRoom(string direction, Room currentRoom)
@@ -40,7 +39,7 @@ namespace TextAdventures
             Console.WriteLine("Inventory:");
             foreach (var item in _inventory)
             {
-                Console.WriteLine($"- {item.Value.Name}");
+                Console.WriteLine($"- {item.Name}");
             }
             Console.Write("\n\n> ");
         }
@@ -52,7 +51,10 @@ namespace TextAdventures
             if (readDescription || _verbose)
                 text += $"{room.Description} ";
             foreach (var item in room.Items)
-                text += $"{item.Value.OriginalLocationDescription} ";
+            {
+                if (item.OriginalLocationDescription != "")
+                    text += $"{item.OriginalLocationDescription} ";
+            }
             TextWriter.Write(text);
             Console.Write("\n\n> ");
         }
@@ -69,44 +71,52 @@ namespace TextAdventures
             Console.Write($"{text}\n\n> ");
         }
 
-        public void TakeItem(string item, Room room)
+        public void TakeItem(string keyword, Room room)
         {
-            if (_inventory.ContainsKey(item))
+            if (_inventory.Any(item => item.Keywords.Contains(keyword)))
             {
-                Console.Write($"You already have the {item}.\n\n> ");
-                return;
-            }
-            if (!room.Items.ContainsKey(item))
-            {
-                Console.Write($"There's no '{item}' here.\n\n> ");
-                return;
-            }
-            if (!room.Items[item].IsTakeable)
-            {
-                Console.Write($"You can't take the {item}.\n\n> ");
+                Console.Write($"You already have the {keyword}.\n\n> ");
                 return;
             }
 
-            _inventory.Add(item, room.Items[item]);
-            room.Items.Remove(item);
-            Console.Write($"You took the {item}.\n\n> ");
+            Item? itemToTake = room.Items.FirstOrDefault(item => item.Keywords.Contains(keyword));
+            if (itemToTake != null)
+            {
+                if (!itemToTake.IsTakeable)
+                {
+                    Console.Write($"You can't take the {keyword}.\n\n> ");
+                    return;
+                }
+                else if (_currentWeight + itemToTake.Weight > MaxWeight)
+                {
+                    Console.Write($"You're carrying too much weight to take the {itemToTake.Name}.\n\n> ");
+                    return;
+                }
+                else
+                {
+                    _inventory.Add(itemToTake);
+                    _currentWeight += itemToTake.Weight;
+                    room.Items.Remove(itemToTake);
+                    Console.Write($"You took the {itemToTake.Name}.\n\n> ");
+                    return;
+                }
+            }
+            else
+                Console.Write($"There's no {keyword} around.\n\n> ");
         }
 
-        public void ExamineItem(string item, Room room)
+        public void ExamineItem(string keyword, Room room)
         {
-            if (_inventory.ContainsKey(item))
+            foreach (Item item in _inventory.Concat(room.Items))
             {
-                TextWriter.Write(_inventory[item].ItemDescription);
-                Console.Write("\n\n> ");
-                return;
+                if (item.Keywords.Contains(keyword))
+                {
+                    TextWriter.Write(item.ExamineDescription);
+                    Console.Write("\n\n> ");
+                    return;
+                }
             }
-            else if (room.Items.ContainsKey(item))
-            {
-                TextWriter.Write(room.Items[item].ItemDescription);
-                Console.Write("\n\n> ");
-                return;
-            }
-            Console.Write($"There's no {item} to examine.\n\n> ");
+            Console.WriteLine($"There's no {keyword} to examine.");
         }
 
     }

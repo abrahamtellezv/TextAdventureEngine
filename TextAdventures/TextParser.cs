@@ -29,6 +29,12 @@ namespace TextAdventures
         {
             switch (words[0])
             {
+                case "test":
+                    foreach (Item item in currentRoom.Items)
+                    {
+                        Console.WriteLine(item.Name);
+                    }
+                    break;
                 case "h":
                 case "help":
                     GiveHelp(words);
