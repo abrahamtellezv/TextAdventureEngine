@@ -101,7 +101,7 @@ namespace TextAdventures
             bathroom.AddExit("s", study);
 
             Item keys = new("set of keys", "A set of keys, to the front door and who knows what else.", "There's a set of keys on the white table next to the door.", isTakeable: true, 3, new HashSet<string> { "key", "keys", "key set", "set of keys" });
-            Item soda = new("can of soda", "A can of soda, \"Red Cola\" reads the label.", "On the floor you see a can of soda.", isTakeable: true, 8, new HashSet<string> { "can", "soda", "can of soda", "soda can" });
+            Item soda = new("can of soda", "A can of soda, \"Red Cola\" reads the label.", "On the floor you see a can of soda.", isTakeable: true, 100, new HashSet<string> { "can", "soda", "can of soda", "soda can" });
             Item cake = new("cake", "The remains of a chocolate cake, the resemblance to the one on Matilda is remarkable.", "There's some cake on the counter.", isTakeable: true, 23, new HashSet<string> { "cake" });
             Item pen = new("pen", "A brown ballpoint pen, I've always liked this ink color, how didn't people think of this before.", "A pen is sitting on the table.", isTakeable: true, 2, new HashSet<string> { "pen" });
 

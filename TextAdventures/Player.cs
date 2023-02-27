@@ -78,6 +78,37 @@ namespace TextAdventures
 
         public void TakeItem(string keyword, Room room)
         {
+            if (keyword == "all")
+            {
+                if (room.Items.Count <= 1)
+                {
+                    Console.Write("There's nothing to take here.");
+                    return;
+                }
+                string text = "You took";
+                foreach (Item item in room.Items.Where(item => item.IsTakeable))
+                {
+                    if (_currentWeight + item.Weight <= MaxWeight)
+                    {
+                        _inventory.Add(item);
+                        _currentWeight += item.Weight;
+                        room.Items.Remove(item);
+                        item.HasBeenTaken = true;
+                        text += $" the {item.Name},";
+                    }
+                }
+                if (text.IndexOf(',') != -1) 
+                {
+                    TextWriter.Write($"{text.Substring(0,text.Length - 1)}.");
+                    Console.Write("\n\n> ");
+                }
+                else
+                {
+                    Console.Write("You couldn't take anything\n\n> ");
+                }
+                return;
+            }
+
             if (_inventory.Any(item => item.Keywords.Contains(keyword)))
             {
                 Console.Write($"You already have the {keyword}.\n\n> ");
