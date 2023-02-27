@@ -93,7 +93,10 @@ namespace TextAdventures
                     break;
                 case "x":
                 case "examine":
-                    HandleExaminingItem(words, player, currentRoom);
+                    HandleExamining(words, player, currentRoom);
+                    break;
+                case "drop":
+                    HandleDroppingItem(words, player, currentRoom);
                     break;
                 default:
                     Console.Write(_incorrectCommand);
@@ -101,7 +104,7 @@ namespace TextAdventures
             }
         }
 
-        private static void HandleExaminingItem(string[] words, Player player, Room currentRoom)
+        private static void HandleExamining(string[] words, Player player, Room currentRoom)
         {
             string item = RetrieveObjectFromInput(words, "Examine");
             if (string.IsNullOrWhiteSpace(item))
@@ -115,6 +118,14 @@ namespace TextAdventures
             if (string.IsNullOrWhiteSpace(item))
                 return;
             player.TakeItem(item, currentRoom);
+        }
+
+        private static void HandleDroppingItem(string[] words, Player player, Room currentRoom)
+        {
+            string item = RetrieveObjectFromInput(words, "Drop");
+            if (string.IsNullOrWhiteSpace(item))
+                return;
+            player.DropItem(item, currentRoom);
         }
 
         private static void GiveHelp(string[] words)

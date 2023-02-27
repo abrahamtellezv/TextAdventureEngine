@@ -16,7 +16,9 @@ namespace TextAdventures
 
         public Player()
         {
-            _inventory = new HashSet<Item>{ new Item("small piece of wood", "You don't know why, but it may be a good idea to hold on to it.", "", true, 2, new HashSet<string>{ "wood", "piece of wood", "wood piece"}) };
+            Item wood = new("small piece of wood", "You don't know why, but it may be a good idea to hold on to it.", "", true, 2, new HashSet<string> { "wood", "piece of wood", "wood piece" });
+            wood.HasBeenTaken = true;
+            _inventory = new HashSet<Item>{ wood };
         }
 
         public Room ChangeRoom(string direction, Room currentRoom)
@@ -24,7 +26,6 @@ namespace TextAdventures
             if (!currentRoom.Exits.ContainsKey(direction))
             {
                 Console.Write("You can't go in that direction.\n\n> ");
-                Console.Title = currentRoom.Name;
                 return currentRoom;
             }
             Room newRoom = currentRoom.Exits[direction];
@@ -49,14 +50,18 @@ namespace TextAdventures
             Console.WriteLine($"{room.Name}");
             string text = string.Empty;
             if (readDescription || _verbose)
-                text += $"{room.Description} ";
-            foreach (var item in room.Items)
+                text += $"{room.Description}";
+            foreach (var item in room.Items.Where(item => !item.HasBeenTaken))
             {
-                if (item.OriginalLocationDescription != "")
-                    text += $"{item.OriginalLocationDescription} ";
+                text += $"{item.OriginalLocationDescription} ";
             }
             TextWriter.Write(text);
-            Console.Write("\n\n> ");
+            Console.Write("\n");
+            foreach (var item in room.Items.Where(item => item.HasBeenTaken))
+            {
+                Console.WriteLine($"There's a {item.Name} here.");
+            }
+            Console.Write("\n> ");
         }
 
         public void SetVerbose(string[] words, bool beVerbose)
@@ -80,43 +85,63 @@ namespace TextAdventures
             }
 
             Item? itemToTake = room.Items.FirstOrDefault(item => item.Keywords.Contains(keyword));
-            if (itemToTake != null)
+            if (itemToTake == null)
             {
-                if (!itemToTake.IsTakeable)
-                {
-                    Console.Write($"You can't take the {keyword}.\n\n> ");
-                    return;
-                }
-                else if (_currentWeight + itemToTake.Weight > MaxWeight)
-                {
-                    Console.Write($"You're carrying too much weight to take the {itemToTake.Name}.\n\n> ");
-                    return;
-                }
-                else
-                {
-                    _inventory.Add(itemToTake);
-                    _currentWeight += itemToTake.Weight;
-                    room.Items.Remove(itemToTake);
-                    Console.Write($"You took the {itemToTake.Name}.\n\n> ");
-                    return;
-                }
+                Console.Write($"There's no {keyword} around.\n\n> ");
+                return;
+            }
+
+            if (!itemToTake.IsTakeable)
+            {
+                Console.Write($"You can't take the {keyword}.\n\n> ");
+                return;
+            }
+            else if (_currentWeight + itemToTake.Weight > MaxWeight)
+            {
+                Console.Write($"You're carrying too much weight to take the {itemToTake.Name}.\n\n> ");
+                return;
             }
             else
-                Console.Write($"There's no {keyword} around.\n\n> ");
+            {
+                _inventory.Add(itemToTake);
+                _currentWeight += itemToTake.Weight;
+                room.Items.Remove(itemToTake);
+                itemToTake.HasBeenTaken = true;
+                Console.Write($"You took the {itemToTake.Name}.\n\n> ");
+                return;
+            }
+        }
+
+        public void DropItem(string keyword, Room room)
+        {
+            Item? itemToDrop = _inventory.FirstOrDefault(item => item.Keywords.Contains(keyword));
+            if (itemToDrop == null)
+            {
+                Console.Write($"You don't have that.\n\n> ");
+                return;
+            }
+            else
+            {
+                _inventory.Remove(itemToDrop);
+                _currentWeight -= itemToDrop.Weight;
+                room.Items.Add(itemToDrop);
+                Console.Write($"You drop the {itemToDrop.Name}.\n\n> ");
+                return;
+            }
         }
 
         public void ExamineItem(string keyword, Room room)
         {
-            foreach (Item item in _inventory.Concat(room.Items))
+            Item? itemToExamine =  _inventory.Concat(room.Items).FirstOrDefault(item => item.Keywords.Contains(keyword));
+            if (itemToExamine == null)
             {
-                if (item.Keywords.Contains(keyword))
-                {
-                    TextWriter.Write(item.ExamineDescription);
-                    Console.Write("\n\n> ");
-                    return;
-                }
+                Console.WriteLine($"There's no {keyword} to examine.");
+                return;
             }
-            Console.WriteLine($"There's no {keyword} to examine.");
+            
+            TextWriter.Write(itemToExamine.ExamineDescription);
+            Console.Write("\n\n> ");
+            return;
         }
 
     }

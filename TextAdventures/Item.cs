@@ -10,6 +10,7 @@ namespace TextAdventures
     {
         public HashSet<string> Keywords { get; private set; }
         public bool IsTakeable { get; set; }
+        public bool HasBeenTaken { get; set; } = false;
         public int Weight { get; private set; }
         public string Name { get; private set; }
         public string OriginalLocationDescription { get; private set; }

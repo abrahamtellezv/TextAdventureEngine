@@ -7,4 +7,16 @@
     <Nullable>enable</Nullable>
   </PropertyGroup>
 
+  <ItemGroup>
+    <None Remove="Rooms.json" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <EmbeddedResource Include="Rooms.json" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="newtonsoft.json" Version="13.0.2" />
+  </ItemGroup>
+
 </Project>

@@ -1,5 +1,9 @@
 ﻿using System.Runtime.CompilerServices;
 using System.Threading.Channels;
+using System.IO;
+using System.Reflection;
+using Newtonsoft.Json;
+using System.Security.Cryptography.X509Certificates;
 
 namespace TextAdventures
 {
@@ -96,15 +100,32 @@ namespace TextAdventures
             bedroom.AddExit("w", study);
             bathroom.AddExit("s", study);
 
-            Item keys = new("keys", "A set of keys, to the front door and who knows what else.", "There's a set of keys on the white table next to the door.", isTakeable: false, 21, new HashSet<string> { "key", "keys" });
-            Item soda = new("can of soda", "A can of soda, \"Red Cola\" reads the label.", "On the floor you see a can of soda.", isTakeable: true, 1, new HashSet<string> { "can", "soda", "can of soda" });
-            Item cake = new("cake", "The remains of a chocolate cake, the resemblance to the one on Matilda is remarkable.", "There's some cake on the counter.", isTakeable: true, 100, new HashSet<string> { "cake" });
-            Item pen = new("pen", "A brown ballpoint pen, I've always liked this ink color, how didn't people think of this before.", "A pen is sitting on the table.", isTakeable: true, 10, new HashSet<string> { "pen" });
+            Item keys = new("set of keys", "A set of keys, to the front door and who knows what else.", "There's a set of keys on the white table next to the door.", isTakeable: true, 3, new HashSet<string> { "key", "keys", "key set", "set of keys" });
+            Item soda = new("can of soda", "A can of soda, \"Red Cola\" reads the label.", "On the floor you see a can of soda.", isTakeable: true, 8, new HashSet<string> { "can", "soda", "can of soda", "soda can" });
+            Item cake = new("cake", "The remains of a chocolate cake, the resemblance to the one on Matilda is remarkable.", "There's some cake on the counter.", isTakeable: true, 23, new HashSet<string> { "cake" });
+            Item pen = new("pen", "A brown ballpoint pen, I've always liked this ink color, how didn't people think of this before.", "A pen is sitting on the table.", isTakeable: true, 2, new HashSet<string> { "pen" });
 
             entrance.AddItems(keys, soda, pen);
             kitchen.AddItems(cake);
 
             return rooms;
+        }
+
+        public static HashSet<Room> LoadRooms()
+        {
+            Assembly assembly = Assembly.GetExecutingAssembly();
+            string roomsFile = "TextAdventures.Rooms.json";
+
+            using Stream? stream = assembly.GetManifestResourceStream(roomsFile);
+            
+            if (stream == null)
+            {
+                throw new FileNotFoundException($"Resource {roomsFile} not found");
+            }
+
+            using StreamReader reader = new StreamReader(stream);
+            var json = reader.ReadToEnd();
+            return JsonConvert.DeserializeObject<HashSet<Room>>(json);
         }
     }
 }

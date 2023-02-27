@@ -1,0 +1,32 @@
+[
+  {
+    "Name": "kitchen",
+    "Description": "smelly place",
+    "Visited": false,
+    "Items": [
+      {
+
+      }
+    ]
+  },
+  {
+    "Name": "entrance",
+    "Description": "kinda awkward",
+    "Visited": false,
+    "Items": [
+      {
+
+      }
+    ]
+  },
+  {
+    "Name": "tvroom",
+    "Description": "there the tv alright",
+    "Visited": false,
+    "Items": [
+      {
+
+      }
+    ]
+  }
+]
