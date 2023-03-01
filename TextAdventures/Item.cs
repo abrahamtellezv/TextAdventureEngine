@@ -25,4 +25,42 @@ namespace TextAdventures
             Keywords = keywords;
         }
     }
+
+    internal class ContainerItem : Item
+    {
+        public HashSet<Item> Items { get; private set; }
+
+        public int MaxCapacity { get; private set; }
+
+        public int CurrentCapacity { get; private set; }
+
+        public bool IsOpen { get; private set; }
+
+        public bool CanBeClosed { get; private set; }
+
+        public ContainerItem(string inventoryName, string examineDescription, string originalLocationDescription, bool isTakeable, int weight, HashSet<string> keywords, int maxCapacity, int currentCapacity, bool isOpen, bool canBeClosed) : base(inventoryName, examineDescription, originalLocationDescription, isTakeable, weight, keywords)
+        {
+            Items = new HashSet<Item>();
+            MaxCapacity = maxCapacity;
+            CurrentCapacity = currentCapacity;
+            IsOpen = isOpen;
+            CanBeClosed = canBeClosed;
+        }
+
+        public void AddItems(params Item[] items)
+        {
+            foreach (Item item in items)
+            {
+                if (item.Weight > MaxCapacity)
+                    Console.Write($"The {TextParser.RemoveArticle(Name)} can't hold the {TextParser.RemoveArticle(item.Name)}.\n");
+                else if (CurrentCapacity + item.Weight > MaxCapacity)
+                    Console.Write($"There are too many things in the {TextParser.RemoveArticle(Name)} to fit the {TextParser.RemoveArticle(item.Name)}\n");
+                else
+                {
+                    CurrentCapacity += item.Weight;
+                    Items.Add(item);
+                }
+            }
+        }
+    }
 }

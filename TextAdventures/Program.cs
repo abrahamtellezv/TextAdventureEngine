@@ -19,9 +19,9 @@ namespace TextAdventures
             Console.Write("Welcome to the text adventure game!");
             Console.ForegroundColor = ConsoleColor.DarkGray;
             Console.Write("    (Type \"help\" for instructions)\n\n\n");
-            Console.ForegroundColor = ConsoleColor.White;
+            Console.ForegroundColor = ConsoleColor.Gray;
             TextWriter.Write("You stand before the slightly ajar door at 320 Real de Montes Urales. While it doesn't really seem that inviting, the chilly air is telling you to go inside.");
-            Console.Write("\n\n> ");
+            Console.Write("\n\n\n> ");
             string? input;
             string[] words;
             while (true)
@@ -29,7 +29,7 @@ namespace TextAdventures
                 input = Console.ReadLine();
                 if (string.IsNullOrWhiteSpace(input))
                 {
-                    Console.Write("No command was given.\n\n> ");
+                    Console.Write("No command was given.\n\n\n> ");
                     continue;
                 }
                 words = TextParser.PrepareText(input).Split(' ');
@@ -46,8 +46,8 @@ namespace TextAdventures
             Room garden = new("Garden", "Somehow the grass is still green in some patches, sadly, the potted plants and the trees have all died. The living and dining rooms lie to the southwest and southeast respectively");
             Room kitchen = new("Kitchen", "You can smell the years of cooking that have happened here. The entrance lies to the west. North is the dining room. The laundry room can be seen to the south.");
             Room laundryRoom = new("Laundry room", "The trusty old washing machine takes most of the space here. The kitchen is to the north. A door leads to the service area to the south.");
-            Room livingRoom = new("Living room", "The couch has definitely seen better times and the tv doesn't seem to work anymore. You can see the dining room to the east and the entrance to the south.");
-            Room diningRoom = new("Dinning room", "There's food on the table, not that you should eat it, who knows how long it's been there. Walking west leads to the living room. The kitchen is to the south.");
+            Room livingRoom = new("Living room", "The couch has definitely seen better times and the tv doesn't seem to work anymore. You see the dining room to the east and the entrance to the south.");
+            Room diningRoom = new("Dinning room", "There's food on the table, not tha t you should eat it, who knows how long it's been there. Walking west leads to the living room. The kitchen is to the south.");
             Room serviceArea = new("Service area", "There's a lot of junk here. The laundry room is up north.");
             Room study = new("Study", "There's so many things on the desks it looks like a stationary shop. At least dusty and messy one. There's a bathroom to the north. You can see a faint green hue coming from the door to the east. Your bedroom was behind the eastern door. There's a door to the balcony south, next to the stairs leading down to the entrance.");
             Room balcony = new("Balcony", "Normally you'd be able to see the small park in front of the house, but for some reason, it's too dark to see right now.");
@@ -100,13 +100,17 @@ namespace TextAdventures
             bedroom.AddExit("w", study);
             bathroom.AddExit("s", study);
 
-            Item keys = new("set of keys", "A set of keys, to the front door and who knows what else.", "There's a set of keys on the white table next to the door.", isTakeable: true, 3, new HashSet<string> { "key", "keys", "key set", "set of keys" });
-            Item soda = new("can of soda", "A can of soda, \"Red Cola\" reads the label.", "On the floor you see a can of soda.", isTakeable: true, 100, new HashSet<string> { "can", "soda", "can of soda", "soda can" });
-            Item cake = new("cake", "The remains of a chocolate cake, the resemblance to the one on Matilda is remarkable.", "There's some cake on the counter.", isTakeable: true, 23, new HashSet<string> { "cake" });
-            Item pen = new("pen", "A brown ballpoint pen, I've always liked this ink color, how didn't people think of this before.", "A pen is sitting on the table.", isTakeable: true, 2, new HashSet<string> { "pen" });
-
-            entrance.AddItems(keys, soda, pen);
+            Item keys = new("a set of keys", "A set of keys, to the front door and who knows what else.", "There's a set of keys on the white table next to the door.", isTakeable: true, 3, new HashSet<string> { "key", "keys", "key set", "set of keys" });
+            Item soda = new("a can of soda", "A can of soda, \"Red Cola\" reads the label.", "You see a can of soda on the floor.", isTakeable: true, 8, new HashSet<string> { "can", "soda", "can of soda", "soda can" });
+            Item cake = new("a cake", "The remains of a chocolate cake, the resemblance to the one on Matilda is remarkable.", "There's some cake on the counter.", isTakeable: true, 23, new HashSet<string> { "cake" });
+            Item pen = new("a brown pen", "A brown ballpoint pen, I've always liked this ink color, how didn't people think of this before.", "A pen is sitting on the table.", isTakeable: true, 2, new HashSet<string> { "pen" });
+            ContainerItem bag = new("a paper bag", "A simple paper bag with a logo printed on.", "You see a paper bag lying on the couch.", isTakeable: true, 1, new HashSet<string> { "bag", "paper bag" }, 10, 0, isOpen: true, canBeClosed: false);
+            Item ball = new("a ball", "a ball", "", isTakeable: true, 4, new HashSet<string> { "ball" });
+            bag.AddItems(ball);
+            
+            entrance.AddItems(keys, pen);
             kitchen.AddItems(cake);
+            livingRoom.AddItems(bag, soda);
 
             return rooms;
         }
@@ -123,7 +127,7 @@ namespace TextAdventures
                 throw new FileNotFoundException($"Resource {roomsFile} not found");
             }
 
-            using StreamReader reader = new StreamReader(stream);
+            using StreamReader reader = new(stream);
             var json = reader.ReadToEnd();
             return JsonConvert.DeserializeObject<HashSet<Room>>(json);
         }

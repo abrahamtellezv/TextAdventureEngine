@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Diagnostics.Tracing;
+using System.Globalization;
 using System.Linq;
 using System.Numerics;
 using System.Security.Cryptography;
@@ -13,7 +14,7 @@ namespace TextAdventures
 {
     class TextParser
     {
-        static readonly string _incorrectCommand = "I don't understand that command.\n\n> ";
+        static readonly string _incorrectCommand = "I don't understand that command.\n\n\n> ";
 
         public TextParser()
         {
@@ -25,30 +26,36 @@ namespace TextAdventures
             return Regex.Replace(input.ToLower(), pattern, "").Trim();
         }
 
+        public static string RemoveArticle(string input)
+        {
+            return string.Join(" ", (input.Split(' ')).Skip(1));
+        }
+
         public void ParseText(string[] words, Player player, ref Room currentRoom)
         {
             switch (words[0])
             {
                 case "test":
-                    foreach (Item item in currentRoom.Items)
-                    {
-                        Console.WriteLine(item.Name);
-                    }
+                    Console.WriteLine(player._currentCapacity);
                     break;
-                case "h":
                 case "help":
+                case "h":
                     GiveHelp(words);
                     break;
-                case "q":
+                case "detailed":
+                    GiveDetailedHelp(words);
+                    break;
+                case "exit":
                 case "quit":
+                case "q":
                     PromptQuit(words);
                     break;
-                case "l":
                 case "look":
+                case "l":
                     HandleLooking(words, player, currentRoom);
                     break;
-                case "i":
                 case "inventory":
+                case "i":
                     player.CheckInventory();
                     break;
                 case "u":
@@ -75,24 +82,24 @@ namespace TextAdventures
                     break;
                 case "go":
                     if (words.Length == 1)
-                        Console.Write("Go where?\n\n> ");
+                        Console.Write("Go where?\n> ");
                     else
                         ParseText(words[1..], player, ref currentRoom);
                     break;
-                case "r":
                 case "restart":
+                case "r":
                     PromptRestart(words);
                     break;
                 case "brief":
                 case "verbose":
                     player.SetVerbose(words, words[0] == "verbose");
                     break;
-                case "t":
                 case "take":
+                case "t":
                     HandleTakingItem(words, player, currentRoom);
                     break;
-                case "x":
                 case "examine":
+                case "x":
                     HandleExamining(words, player, currentRoom);
                     break;
                 case "drop":
@@ -102,6 +109,80 @@ namespace TextAdventures
                     Console.Write(_incorrectCommand);
                     break;
             }
+        }
+
+        private static void GiveHelp(string[] words)
+        {
+            if (words.Length != 1)
+            {
+                Console.WriteLine(_incorrectCommand);
+                return;
+            }
+            string help = "\nCommands I understand:\n" +
+                "  h, help:                 provide brief instructions\n" +
+                "  detailed help:           provide extended instructions\n" +
+                "  [d]irection,\n" +
+                "  [direction],\n" +
+                "  go [direction]:          move in one of ten possible directions: up, down,\n" +
+                "                           north, west, southeast, etc.\n" +
+                "  l, look, look around:    describe the room you're in and any objects in it\n" +
+                "  take [item]:             take item from room or container if possible\n" +
+                "  examine [item]:          get a description of said item\n" +
+                "  i, inventory:            check your inventory\n" +
+                "  r, restart:              restart the game\n" +
+                "  q, quit:                 exit the game\n\n\n";
+            Console.ForegroundColor = ConsoleColor.DarkGray;
+            Console.Write(help);
+            Console.ForegroundColor = ConsoleColor.Gray;
+            Console.Write("> ");
+        }
+
+        private static void GiveDetailedHelp(string[] words)
+        {
+            if (!(words.Length == 2 && words[1] == "help")) 
+            {
+                Console.WriteLine(_incorrectCommand);
+                return;
+            }
+            string detailedHelp =
+                "\n - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - \n\n" +
+                "Here's a the complete list of commands I understand:\n\n" +
+                " help, h:\n" +
+                "       Provide a shortened set of instructions.\n\n" +
+                " detailed help:\n" +
+                "       Provide comprehensive instructions on all possible commands.\n\n" +
+                " go [direction], [direction], [d]irection:\n" +
+                "       Move in one of ten possible directions: up, down, east, south, north,\n" +
+                "       west, southeast, northeast, northwest and southwest. You can use\n" +
+                "       abbreviations to travel faster: u, d, n, w, ne, sw...\n\n" +
+                " look around, look, l:\n" +
+                "       Reads you the description of the room and enlists all the objects\n" +
+                "       in the room that can be taken.\n\n" +
+                " take [item], t [item]:\n" +
+                "       Take's the specified item from the room or container if possible.\n" +
+                "       Type 'take all' to try to pick every available item in the room.\n" +
+                "       Keep in mind that you can only carry so many things at a time.\n\n" +
+                " examine [item], x [item]:\n" +
+                "       Get a detailed description of the specified item. Rooms may have some\n" +
+                "       non-takeable items that can be examined.\n\n" +
+                " drop [item]:\n" +
+                "       Drop the specified item from your inventory.\n\n" +
+                " inventory, i:\n" +
+                "       Gives a list of all the items you are currently holding.\n\n" +
+                " brief:\n" +
+                "       Describes rooms in detail only the first time you enter them.\n" +
+                "       This is the default description mode.\n\n" +
+                " verbose:\n" +
+                "       Describes rooms in full every time you enter them.\n\n" +
+                " restart, r:\n" +
+                "       Promts you to restart the game.\n\n" +
+                " quit, q:\n" +
+                "       Prompts you to quit the game.\n\n" +
+                " - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - \n\n\n";
+            Console.ForegroundColor = ConsoleColor.DarkGray;
+            Console.Write(detailedHelp);
+            Console.ForegroundColor = ConsoleColor.Gray;
+            Console.Write("> ");
         }
 
         private static void HandleExamining(string[] words, Player player, Room currentRoom)
@@ -117,7 +198,10 @@ namespace TextAdventures
             string item = RetrieveObjectFromInput(words, "Take");
             if (string.IsNullOrWhiteSpace(item))
                 return;
-            player.TakeItem(item, currentRoom);
+            if (item == "all")
+                player.TakeAllItems(currentRoom);
+            else
+                player.TakeItem(item, currentRoom);
         }
 
         private static void HandleDroppingItem(string[] words, Player player, Room currentRoom)
@@ -126,51 +210,6 @@ namespace TextAdventures
             if (string.IsNullOrWhiteSpace(item))
                 return;
             player.DropItem(item, currentRoom);
-        }
-
-        private static void GiveHelp(string[] words)
-        {
-            if (words.Length != 1)
-            {
-                Console.WriteLine(_incorrectCommand);
-                return;
-            }
-            string help = "\nCommands I understand:\n" +
-                "  h, help:                 provide brief instructions\n" +
-                "  [d]irection,\n" +
-                "  [direction],\n" +
-                "  go [direction]:          move in one of ten possible directions: up, down,\n" +
-                "                           north, west, southeast, etc.\n" +
-                "  l, look, look around:    describe the room you're in and any objects in it\n" +
-                "  take [item]:             take item from room or container if possible\n" +
-                "  examine [item]:          get a description of said item\n" +
-                "  i, inventory:            check your inventory\n" +
-                "  verbose:                 describe rooms every time you enter\n" +
-                "  brief:                   describe rooms only the first time you enter\n" +
-                "  r, restart:              restart the game" +
-                "  q, quit:                 exit the game\n\n";
-            Console.ForegroundColor = ConsoleColor.DarkGray;
-            Console.Write(help);
-            Console.ForegroundColor = ConsoleColor.White;
-            Console.Write("> ");
-        }
-
-        private static string RetrieveObjectFromInput(string[] words, string verb)
-        {
-            string? item = string.Empty;
-            if (words.Length == 1)
-            {
-                Console.Write($"{verb} what?\n\n> ");
-                item = Console.ReadLine();
-                if (string.IsNullOrWhiteSpace(item))
-                    return "";
-            }
-            else
-                foreach (string word in words.Skip(1))
-                {
-                    item += $"{word} ";
-                }
-            return PrepareText(item);
         }
 
         private static void HandleLooking(string[] words, Player player, Room currentRoom)
@@ -213,7 +252,7 @@ namespace TextAdventures
                 Environment.Exit(0);
             }
             else
-                Console.Write("\n\n> ");
+                Console.Write("Ok.\n\n\n> ");
         }
 
         private static void PromptRestart(string[] words)
@@ -238,7 +277,28 @@ namespace TextAdventures
                 Environment.Exit(0);
             }
             else
-                Console.Write("\n\n> ");
+                Console.Write("Ok.\n\n\n> ");
+        }
+
+        private static string RetrieveObjectFromInput(string[] words, string verb)
+        {
+            string? item = string.Empty;
+            if (words.Length == 1)
+            {
+                Console.Write($"{verb} what?\n> ");
+                item = Console.ReadLine();
+                if (string.IsNullOrWhiteSpace(item))
+                {
+                    Console.Write($"You {verb.ToLower()} nothing.\n\n\n> ");
+                    return "";
+                }
+            }
+            else
+                foreach (string word in words.Skip(1))
+                {
+                    item += $"{word} ";
+                }
+            return PrepareText(item);
         }
     }
 }

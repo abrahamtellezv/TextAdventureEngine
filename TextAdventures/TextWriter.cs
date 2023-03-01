@@ -11,7 +11,7 @@ namespace TextAdventures
         const int MaxCharacters = 80;
         public static void Write(string input)
         {
-            // This function breaks long strings into shorter ones for easier reading, so short strings are still written with Console
+            // This function breaks long strings into shorter ones for easier reading
             string[] words = input.Split(' ');
             string line = string.Empty;
             int index = 0;
