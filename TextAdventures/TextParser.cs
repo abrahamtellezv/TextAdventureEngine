@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel.Design;
 using System.Diagnostics;
 using System.Diagnostics.Tracing;
 using System.Globalization;
@@ -105,6 +106,10 @@ namespace TextAdventures
                 case "drop":
                     HandleDroppingItem(words, player, currentRoom);
                     break;
+                case "open":
+                case "close":
+                    HandleOpeningAndClosingItem(words, player, currentRoom);
+                    break;
                 default:
                     Console.Write(_incorrectCommand);
                     break;
@@ -196,8 +201,8 @@ namespace TextAdventures
         private static void HandleTakingItem(string[] words, Player player, Room currentRoom)
         {
             string item = RetrieveObjectFromInput(words, "Take");
-            if (string.IsNullOrWhiteSpace(item))
-                return;
+            if (string.IsNullOrWhiteSpace(item)) return;
+
             if (item == "all")
                 player.TakeAllItems(currentRoom);
             else
@@ -207,9 +212,18 @@ namespace TextAdventures
         private static void HandleDroppingItem(string[] words, Player player, Room currentRoom)
         {
             string item = RetrieveObjectFromInput(words, "Drop");
-            if (string.IsNullOrWhiteSpace(item))
-                return;
+            if (string.IsNullOrWhiteSpace(item)) return;
+
             player.DropItem(item, currentRoom);
+        }
+
+        private static void HandleOpeningAndClosingItem(string[] words, Player player, Room currentRoom)
+        {
+            string verb = words[0] == "open" ? "Open" : "Close";
+            string item = RetrieveObjectFromInput(words, verb);
+            if (string.IsNullOrWhiteSpace(item)) return;
+
+            player.OpenOrCloseItem(item, currentRoom, words[0] == "open");
         }
 
         private static void HandleLooking(string[] words, Player player, Room currentRoom)

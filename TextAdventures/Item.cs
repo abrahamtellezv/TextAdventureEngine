@@ -34,7 +34,7 @@ namespace TextAdventures
 
         public int CurrentCapacity { get; private set; }
 
-        public bool IsOpen { get; private set; }
+        public bool IsOpen { get; set; }
 
         public bool CanBeClosed { get; private set; }
 
@@ -52,7 +52,7 @@ namespace TextAdventures
             foreach (Item item in items)
             {
                 if (item.Weight > MaxCapacity)
-                    Console.Write($"The {TextParser.RemoveArticle(Name)} can't hold the {TextParser.RemoveArticle(item.Name)}.\n");
+                    Console.Write($"The {TextParser.RemoveArticle(Name)} can't hold the {item.Name}.\n");
                 else if (CurrentCapacity + item.Weight > MaxCapacity)
                     Console.Write($"There are too many things in the {TextParser.RemoveArticle(Name)} to fit the {TextParser.RemoveArticle(item.Name)}\n");
                 else
@@ -61,6 +61,12 @@ namespace TextAdventures
                     Items.Add(item);
                 }
             }
+        }
+
+        public void RemoveItem(Item item)
+        {
+            Items.Remove(item);
+            CurrentCapacity -= item.Weight;
         }
     }
 }
