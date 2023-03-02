@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.ComponentModel.Design;
 using System.Diagnostics.Metrics;
 using System.Linq;
@@ -13,7 +14,7 @@ namespace TextAdventures
     {
         readonly HashSet<Item> _inventory;
         const int MaxCapacity = 100;
-        public int _currentCapacity = 2;
+        public int _currentCapacity = 92;
         bool _verbose;
         readonly List<string> impossibleToTakeMessages = new() { "You can't be serious. ", "That's... imposible.", "You tried and tried, but alas, you failed to take it.", "As you thought just before trying, that couldn't be done." };
 
@@ -98,39 +99,62 @@ namespace TextAdventures
             Console.Write("\n\n\n> ");
         }
 
-        public void TakeItem(string keyword, Room room)
+        private bool ItemIsInInventory(string keyword)
         {
             if (_inventory.Any(item => item.Keywords.Contains(keyword)))
             {
                 Console.Write($"You already have the {keyword}.\n\n\n> ");
-                return;
+                return true;
             }
 
-            foreach(Item item in _inventory.Where(item => item is ContainerItem container && container.IsOpen && container.CurrentCapacity > 0))
+            foreach (Item item in _inventory.Where(item => item is ContainerItem container && container.IsOpen && container.CurrentCapacity > 0))
             {
                 ContainerItem container = (ContainerItem)item;
-                Item? itemToTakeFromContainer = container.Items.FirstOrDefault(item => item.Keywords.Contains(keyword));
-                if (itemToTakeFromContainer != null)
+                Item? itemToTake = container.Items.FirstOrDefault(item => item.Keywords.Contains(keyword));
+                if (itemToTake != null)
                 {
-                    _inventory.Add(itemToTakeFromContainer);
-                    container.RemoveItem(itemToTakeFromContainer);
-                    Console.Write($"You took the {TextParser.RemoveArticle(itemToTakeFromContainer.Name)}.");
-                    return;
+                    _inventory.Add(itemToTake);
+                    container.RemoveItem(itemToTake);
+                    Console.Write($"You took the {TextParser.RemoveArticle(itemToTake.Name)}.\n\n\n> ");
+                    return true;
                 }
             }
 
-            Item? itemToTakeFromRoom = room.Items.FirstOrDefault(item => item.Keywords.Contains(keyword));
-            if (itemToTakeFromRoom == null)
+            return false;
+        }
+
+        public void TakeItem(string keyword, Room room)
+        {
+            if (ItemIsInInventory(keyword)) return;
+
+            ContainerItem? containerItem = null;
+            Item? itemToTake = room.Items.FirstOrDefault(item => item.Keywords.Contains(keyword));
+            if (itemToTake == null)
             {
                 foreach (var item in room.Items.Where(item => item is ContainerItem container && container.IsOpen && container.CurrentCapacity > 0))
                 {
-
+                    containerItem = (ContainerItem)item;
+                    itemToTake = containerItem.Items.FirstOrDefault(item => item.Keywords.Contains(keyword));
+                    if (itemToTake != null && itemToTake.Weight + _currentCapacity <= MaxCapacity)
+                    {
+                        _inventory.Add(itemToTake);
+                        _currentCapacity += itemToTake.Weight;
+                        containerItem.RemoveItem(itemToTake);
+                        Console.Write($"You took the {TextParser.RemoveArticle(itemToTake.Name)}.\n\n\n> ");
+                        return;
+                    }
+                    else if (itemToTake != null && itemToTake.Weight + _currentCapacity > MaxCapacity)
+                    {
+                        Console.Write($"You're carrying too much to take the {keyword}.\n\n\n> ");
+                        return;
+                    }
+                    
                 }
                 Console.Write($"There's no {keyword} around.\n\n\n> ");
                 return;
             }
 
-            if (itemToTakeFromRoom.Weight > MaxCapacity)
+            if (itemToTake.Weight > MaxCapacity)
             {
                 Random random = new();
                 Console.Write(impossibleToTakeMessages[random.Next(0,impossibleToTakeMessages.Count)]);
@@ -138,13 +162,13 @@ namespace TextAdventures
                 return;
             }
 
-            if (!itemToTakeFromRoom.IsTakeable)
+            if (!itemToTake.IsTakeable)
             {
                 Console.Write($"You can't take the {keyword}.\n\n\n> ");
                 return;
             }
 
-            if (itemToTakeFromRoom is ContainerItem containerItemToTake)
+            if (itemToTake is ContainerItem containerItemToTake)
             {
                 if (_currentCapacity + containerItemToTake.Weight + containerItemToTake.CurrentCapacity > MaxCapacity)
                 {
@@ -152,21 +176,21 @@ namespace TextAdventures
                     return;
                 }
             }
-            else if (_currentCapacity + itemToTakeFromRoom.Weight > MaxCapacity)
+            else if (_currentCapacity + itemToTake.Weight > MaxCapacity)
             {
                 Console.Write($"You're carrying too much to take the {keyword}.\n\n\n> ");
                 return;
             }
             
-            _inventory.Add(itemToTakeFromRoom);
-            _currentCapacity += itemToTakeFromRoom.Weight;
-            room.Items.Remove(itemToTakeFromRoom);
-            itemToTakeFromRoom.HasBeenTaken = true;
-            if (itemToTakeFromRoom is ContainerItem containerItem2)
+            _inventory.Add(itemToTake);
+            _currentCapacity += itemToTake.Weight;
+            room.Items.Remove(itemToTake);
+            itemToTake.HasBeenTaken = true;
+            if (itemToTake is ContainerItem containerItem2)
             {
                 _currentCapacity += containerItem2.CurrentCapacity;
             }
-            Console.Write($"You took the {TextParser.RemoveArticle(itemToTakeFromRoom.Name)}.\n\n\n> ");
+            Console.Write($"You took the {TextParser.RemoveArticle(itemToTake.Name)}.\n\n\n> ");
         }
 
         public void TakeAllItems(Room room)
