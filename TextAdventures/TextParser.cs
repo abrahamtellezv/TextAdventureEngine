@@ -37,7 +37,7 @@ namespace TextAdventures
             switch (words[0])
             {
                 case "test":
-                    Console.WriteLine(player._currentCapacity);
+                    Console.Write($"Current capacity: {player._currentCapacity}\n\n\n> ");
                     break;
                 case "help":
                 case "h":

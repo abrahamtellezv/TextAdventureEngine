@@ -20,7 +20,7 @@ namespace TextAdventures
             Description = description;
             Exits = new Dictionary<string, Room>();
             Items = new HashSet<Item>() { };
-            Item floor = new("floor", "Nothing remarkable about the ground here.", "", isTakeable: false, 999, new HashSet<string> { "floor", "ground" });
+            Item floor = new("floor", "Nothing remarkable about the ground here.", "", 999, new HashSet<string> { "floor", "ground" });
             AddItems(floor);
         } 
 

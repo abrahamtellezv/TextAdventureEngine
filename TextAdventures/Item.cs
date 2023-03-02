@@ -9,18 +9,16 @@ namespace TextAdventures
     internal class Item
     {
         public HashSet<string> Keywords { get; private set; }
-        public bool IsTakeable { get; set; }
         public bool HasBeenTaken { get; set; } = false;
         public int Weight { get; private set; }
         public string Name { get; private set; }
         public string OriginalLocationDescription { get; private set; }
         public string ExamineDescription { get; private set; }
-        public Item(string inventoryName, string examineDescription, string originalLocationDescription, bool isTakeable, int weight, HashSet<string> keywords)
+        public Item(string inventoryName, string examineDescription, string originalLocationDescription, int weight, HashSet<string> keywords)
         {
             Name = inventoryName;
             ExamineDescription = examineDescription;
             OriginalLocationDescription = originalLocationDescription;
-            IsTakeable = isTakeable;
             Weight = weight;
             Keywords = keywords;
         }
@@ -38,7 +36,7 @@ namespace TextAdventures
 
         public bool CanBeClosed { get; private set; }
 
-        public ContainerItem(string inventoryName, string examineDescription, string originalLocationDescription, bool isTakeable, int weight, HashSet<string> keywords, int maxCapacity, int currentCapacity, bool isOpen, bool canBeClosed) : base(inventoryName, examineDescription, originalLocationDescription, isTakeable, weight, keywords)
+        public ContainerItem(string inventoryName, string examineDescription, string originalLocationDescription, int weight, HashSet<string> keywords, int maxCapacity, int currentCapacity, bool isOpen, bool canBeClosed) : base(inventoryName, examineDescription, originalLocationDescription, weight, keywords)
         {
             Items = new HashSet<Item>();
             MaxCapacity = maxCapacity;

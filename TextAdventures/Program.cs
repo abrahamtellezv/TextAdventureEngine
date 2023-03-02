@@ -100,12 +100,12 @@ namespace TextAdventures
             bedroom.AddExit("w", study);
             bathroom.AddExit("s", study);
 
-            Item keys = new("a set of keys", "A set of keys, to the front door and who knows what else.", "There's a set of keys on the white table next to the door.", isTakeable: true, 3, new HashSet<string> { "key", "keys", "key set", "set of keys" });
-            Item soda = new("a can of soda", "A can of soda, \"Red Cola\" reads the label.", "You see a can of soda on the floor.", isTakeable: true, 8, new HashSet<string> { "can", "soda", "can of soda", "soda can" });
-            Item cake = new("a cake", "The remains of a chocolate cake, the resemblance to the one on Matilda is remarkable.", "There's some cake on the counter.", isTakeable: true, 23, new HashSet<string> { "cake" });
-            Item pen = new("a brown pen", "A brown ballpoint pen, I've always liked this ink color, how didn't people think of this before.", "A pen is sitting on the table.", isTakeable: true, 2, new HashSet<string> { "pen" });
-            ContainerItem bag = new("a paper bag", "A simple paper bag with a logo printed on.", "You see a paper bag lying on the couch.", isTakeable: true, 1, new HashSet<string> { "bag", "paper bag" }, 10, 0, isOpen: false, canBeClosed: true);
-            Item ball = new("a ball", "a ball", "", isTakeable: true, 4, new HashSet<string> { "ball" });
+            Item keys = new("a set of keys", "A set of keys, to the front door and who knows what else.", "There's a set of keys on the white table next to the door.", 3, new HashSet<string> { "key", "keys", "key set", "set of keys" });
+            Item soda = new("a can of soda", "A can of soda, \"Red Cola\" reads the label.", "You see a can of soda on the floor.", 8, new HashSet<string> { "can", "soda", "can of soda", "soda can" });
+            Item cake = new("a cake", "The remains of a chocolate cake, the resemblance to the one on Matilda is remarkable.", "There's some cake on the counter.", 23, new HashSet<string> { "cake" });
+            Item pen = new("a brown pen", "A brown ballpoint pen, I've always liked this ink color, how didn't people think of this before.", "A pen is sitting on the table.", 2, new HashSet<string> { "pen" });
+            ContainerItem bag = new("a paper bag", "A simple paper bag with a logo printed on.", "You see a paper bag lying on the couch.", 1, new HashSet<string> { "bag", "paper bag" }, 10, 0, isOpen: false, canBeClosed: true);
+            Item ball = new("a ball", "a ball", "", 4, new HashSet<string> { "ball" });
             bag.AddItems(ball);
             
             entrance.AddItems(keys, pen);

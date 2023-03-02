@@ -20,7 +20,7 @@ namespace TextAdventures
 
         public Player()
         {
-            Item wood = new("a small piece of wood", "You don't know why, but it may be a good idea to hold on to it.", "", true, 2, new HashSet<string> { "wood", "piece of wood", "wood piece" });
+            Item wood = new("a small piece of wood", "You don't know why, but it may be a good idea to hold on to it.", "", 2, new HashSet<string> { "wood", "piece of wood", "wood piece" });
             wood.HasBeenTaken = true;
             _inventory = new HashSet<Item>{ wood };
         }
@@ -123,33 +123,41 @@ namespace TextAdventures
             return false;
         }
 
+        private bool ItemIsInsideContainer(string keyword, Room room)
+        {
+            ContainerItem? containerItem = null;
+            Item? itemToTake = room.Items.FirstOrDefault(item => item.Keywords.Contains(keyword));
+            foreach (var item in room.Items.Where(item => item is ContainerItem container && container.IsOpen && container.CurrentCapacity > 0))
+            {
+                containerItem = (ContainerItem)item;
+                itemToTake = containerItem.Items.FirstOrDefault(item => item.Keywords.Contains(keyword));
+                if (itemToTake != null && itemToTake.Weight + _currentCapacity <= MaxCapacity)
+                {
+                    _inventory.Add(itemToTake);
+                    _currentCapacity += itemToTake.Weight;
+                    containerItem.RemoveItem(itemToTake);
+                    Console.Write($"You took the {TextParser.RemoveArticle(itemToTake.Name)}.\n\n\n> ");
+                    return true;
+                }
+                else if (itemToTake != null && itemToTake.Weight + _currentCapacity > MaxCapacity)
+                {
+                    Console.Write($"You're carrying too much to take the {keyword}.\n\n\n> ");
+                    return true;
+                }
+            }
+            return false;
+        }
+
         public void TakeItem(string keyword, Room room)
         {
             if (ItemIsInInventory(keyword)) return;
 
-            ContainerItem? containerItem = null;
+            
             Item? itemToTake = room.Items.FirstOrDefault(item => item.Keywords.Contains(keyword));
             if (itemToTake == null)
             {
-                foreach (var item in room.Items.Where(item => item is ContainerItem container && container.IsOpen && container.CurrentCapacity > 0))
-                {
-                    containerItem = (ContainerItem)item;
-                    itemToTake = containerItem.Items.FirstOrDefault(item => item.Keywords.Contains(keyword));
-                    if (itemToTake != null && itemToTake.Weight + _currentCapacity <= MaxCapacity)
-                    {
-                        _inventory.Add(itemToTake);
-                        _currentCapacity += itemToTake.Weight;
-                        containerItem.RemoveItem(itemToTake);
-                        Console.Write($"You took the {TextParser.RemoveArticle(itemToTake.Name)}.\n\n\n> ");
-                        return;
-                    }
-                    else if (itemToTake != null && itemToTake.Weight + _currentCapacity > MaxCapacity)
-                    {
-                        Console.Write($"You're carrying too much to take the {keyword}.\n\n\n> ");
-                        return;
-                    }
-                    
-                }
+                if (ItemIsInsideContainer(keyword, room)) return;
+
                 Console.Write($"There's no {keyword} around.\n\n\n> ");
                 return;
             }
@@ -162,15 +170,9 @@ namespace TextAdventures
                 return;
             }
 
-            if (!itemToTake.IsTakeable)
+            if (itemToTake is ContainerItem containerItem)
             {
-                Console.Write($"You can't take the {keyword}.\n\n\n> ");
-                return;
-            }
-
-            if (itemToTake is ContainerItem containerItemToTake)
-            {
-                if (_currentCapacity + containerItemToTake.Weight + containerItemToTake.CurrentCapacity > MaxCapacity)
+                if (_currentCapacity + containerItem.Weight + containerItem.CurrentCapacity > MaxCapacity)
                 {
                     Console.Write($"You're carrying too much to take the {keyword}.\n\n\n> ");
                     return;
@@ -201,7 +203,7 @@ namespace TextAdventures
                 return;
             }
             string text = "You took";
-            foreach (Item item in room.Items.Where(item => item.IsTakeable))
+            foreach (Item item in room.Items.Where(item => item.Weight < MaxCapacity))
             {
                 if (item is ContainerItem containerItem)
                 {
@@ -278,13 +280,13 @@ namespace TextAdventures
                 Console.Write($"You can't {verb} that.\n\n\n> ");
                 return;
             }
-            if (!containerItem.CanBeClosed)
+            else if (!containerItem.CanBeClosed)
             {
                 Console.Write($"The {keyword} can't be {pastTenseVerb}.\n\n\n> ");
                 return;
             }
-            (itemToOpen as ContainerItem).IsOpen = openItem;
-            Console.Write($"You {pastTenseVerb} the {TextParser.RemoveArticle(itemToOpen.Name)}.\n\n\n> ");
+            containerItem.IsOpen = openItem;
+            Console.Write($"You {pastTenseVerb} the {TextParser.RemoveArticle(containerItem.Name)}.\n\n\n> ");
         }
 
         public void ExamineItem(string keyword, Room room)
