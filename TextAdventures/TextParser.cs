@@ -24,7 +24,7 @@ namespace TextAdventures
         public static string PrepareText(string input)
         {
             string pattern = @"\bthe\b";
-            return Regex.Replace(input.ToLower(), pattern, "").Trim();
+            return Regex.Replace(input.ToLower(), pattern, "").Trim(); //i had changed the patter to " " instead of  "",, dunno why
         }
 
         public static string RemoveArticle(string input)
