@@ -8,19 +8,20 @@ namespace TextAdventures
 {
     internal class Item
     {
-        public HashSet<string> Keywords { get; private set; }
-        public bool HasBeenTaken { get; set; } = false;
-        public int Weight { get; private set; }
         public string Name { get; private set; }
-        public string OriginalLocationDescription { get; private set; }
+        public HashSet<string> Keywords { get; private set; }
         public string ExamineDescription { get; private set; }
-        public Item(string inventoryName, string examineDescription, string originalLocationDescription, int weight, HashSet<string> keywords)
+        public string FirstEncounterDescription { get; private set; }
+        public int Weight { get; private set; }
+        public bool ShowFirstEncounterDescription { get; set; } = true;
+
+        public Item(string name, HashSet<string> keywords, string examineDescription, string firstEncounterDescription, int weight)
         {
-            Name = inventoryName;
-            ExamineDescription = examineDescription;
-            OriginalLocationDescription = originalLocationDescription;
-            Weight = weight;
+            Name = name;
             Keywords = keywords;
+            ExamineDescription = examineDescription;
+            FirstEncounterDescription = firstEncounterDescription;
+            Weight = weight;
         }
     }
 
@@ -36,7 +37,7 @@ namespace TextAdventures
 
         public bool CanBeClosed { get; private set; }
 
-        public ContainerItem(string inventoryName, string examineDescription, string originalLocationDescription, int weight, HashSet<string> keywords, int maxCapacity, int currentCapacity, bool isOpen, bool canBeClosed) : base(inventoryName, examineDescription, originalLocationDescription, weight, keywords)
+        public ContainerItem(string name, HashSet<string> keywords, string examineDescription, string firstEncounterDescription, int weight, int maxCapacity, int currentCapacity, bool isOpen, bool canBeClosed) : base(name, keywords, examineDescription, firstEncounterDescription, weight)
         {
             Items = new HashSet<Item>();
             MaxCapacity = maxCapacity;

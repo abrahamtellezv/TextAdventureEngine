@@ -1,0 +1,12 @@
+PROBLEMS!!!  ~~~~~~~~~~~~~~~~
+
+There's some klind of problem with take all when there's only one item in the room.
+FIXED - When taking the ball and dropping it in a room. It doesnt appear on the room description. It is still there, and if you pick it up
+	again and drop it, now it WILL show in the description....
+	SOLUTION - The thing was that the propery showfirstencounterdescription was set to true, but it lacked one, and taking an item OUT of a container didnt yet mark it as false.
+
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Make it so that when the keywords for an item are read, we remove all instances of the word "the" from the read keyword.
+	This way things could have names like "the book of the dead" and, even tho the parser would turn the search keywords to "book of dead"
+	If the keywords read are also parsed that way the would still match

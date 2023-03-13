@@ -32,7 +32,7 @@ namespace TextAdventures
                     Console.Write("No command was given.\n\n\n> ");
                     continue;
                 }
-                words = TextParser.PrepareText(input).Split(' ');
+                words = TextParser.PrepareText(input).Split(' ', StringSplitOptions.RemoveEmptyEntries);
                 parser.ParseText(words, player, ref currentRoom);
             }
         }
@@ -100,12 +100,18 @@ namespace TextAdventures
             bedroom.AddExit("w", study);
             bathroom.AddExit("s", study);
 
-            Item keys = new("a set of keys", "A set of keys, to the front door and who knows what else.", "There's a set of keys on the white table next to the door.", 3, new HashSet<string> { "key", "keys", "key set", "set of keys" });
-            Item soda = new("a can of soda", "A can of soda, \"Red Cola\" reads the label.", "You see a can of soda on the floor.", 8, new HashSet<string> { "can", "soda", "can of soda", "soda can" });
-            Item cake = new("a cake", "The remains of a chocolate cake, the resemblance to the one on Matilda is remarkable.", "There's some cake on the counter.", 23, new HashSet<string> { "cake" });
-            Item pen = new("a brown pen", "A brown ballpoint pen, I've always liked this ink color, how didn't people think of this before.", "A pen is sitting on the table.", 2, new HashSet<string> { "pen" });
-            ContainerItem bag = new("a paper bag", "A simple paper bag with a logo printed on.", "You see a paper bag lying on the couch.", 1, new HashSet<string> { "bag", "paper bag" }, 10, 0, isOpen: false, canBeClosed: true);
-            Item ball = new("a ball", "a ball", "", 4, new HashSet<string> { "ball" });
+            Item keys = new("a set of keys", new HashSet<string> { "key", "keys", "key set", "set of keys" }, "A set of keys, to the front door and who knows what else.", "There's a set of keys on the white table next to the door.", 3);
+            Item soda = new("a can of soda", new HashSet<string> { "can", "soda", "can of soda", "soda can" }, "A can of soda, \"Red Cola\" reads the label.", "You see a can of soda on the floor.", 8);
+            Item cake = new("a cake", new HashSet<string> { "cake" }, "The remains of a chocolate cake, the resemblance to the one on Matilda is remarkable.", "There's some cake on the counter.", 23);
+            Item pen = new("a brown pen", new HashSet<string> { "pen", "brown pen" }, "A brown ballpoint pen, I've always liked this ink color, how didn't people think of this before.", "A pen is sitting on the table.", 2);
+            ContainerItem bag = new("a paper bag", new HashSet<string> { "bag", "paper bag" }, "A simple paper bag with a logo printed on.", "You see a paper bag lying on the couch.", 1, 10, 0, isOpen: true, canBeClosed: true);
+            Item ball = new("a ball", new HashSet<string> { "ball" }, "a ball", "", 4);
+            ball.ShowFirstEncounterDescription = false;
+            Surface whiteTable = new("white table", new HashSet<string> { "table", "white table" }, "A small white side table, the paint chipped off here and there.", 200);
+            entrance.AddSurface(whiteTable);
+            Item stuff = new("stuff", new HashSet<string> { "stuff", "some stuff", "the stuff" }, "Some stuff", "There's some stuff on the table also.", 1);
+            whiteTable.AddItems(stuff);
+
             bag.AddItems(ball);
             
             entrance.AddItems(keys, pen);

@@ -16,6 +16,7 @@ namespace TextAdventures
     class TextParser
     {
         static readonly string _incorrectCommand = "I don't understand that command.\n\n\n> ";
+        static readonly string _incorrectSyntax = "I didn't quite get what you are trying to do.\n\n\n> ";
 
         public TextParser()
         {
@@ -24,7 +25,7 @@ namespace TextAdventures
         public static string PrepareText(string input)
         {
             string pattern = @"\bthe\b";
-            return Regex.Replace(input.ToLower(), pattern, "").Trim(); //i had changed the patter to " " instead of  "",, dunno why
+            return Regex.Replace(input.ToLower(), pattern, "").Trim(); //i had changed the patter to " " instead of  "", dunno why
         }
 
         public static string RemoveArticle(string input)
@@ -106,6 +107,9 @@ namespace TextAdventures
                 case "drop":
                     HandleDroppingItem(words, player, currentRoom);
                     break;
+                case "put":
+                    HandlePuttingItem(words, player, currentRoom);
+                    break;
                 case "open":
                 case "close":
                     HandleOpeningAndClosingItem(words, player, currentRoom);
@@ -172,6 +176,10 @@ namespace TextAdventures
                 "       non-takeable items that can be examined.\n\n" +
                 " drop [item]:\n" +
                 "       Drop the specified item from your inventory.\n\n" +
+                " put [item] in\\on [container\\surface]\n" +
+                "       Puts the specified item inside a container or on a surface.\n\n" +
+                " open, close:\n" +
+                "       Open or close the specified item if possible.\n\n" +
                 " inventory, i:\n" +
                 "       Gives a list of all the items you are currently holding.\n\n" +
                 " brief:\n" +
@@ -181,7 +189,7 @@ namespace TextAdventures
                 "       Describes rooms in full every time you enter them.\n\n" +
                 " restart, r:\n" +
                 "       Promts you to restart the game.\n\n" +
-                " quit, q:\n" +
+                " exit, quit, q:\n" +
                 "       Prompts you to quit the game.\n\n" +
                 " - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - \n\n\n";
             Console.ForegroundColor = ConsoleColor.DarkGray;
@@ -201,12 +209,24 @@ namespace TextAdventures
         private static void HandleTakingItem(string[] words, Player player, Room currentRoom)
         {
             string item = RetrieveObjectFromInput(words, "Take");
-            if (string.IsNullOrWhiteSpace(item)) return;
+            if (string.IsNullOrWhiteSpace(item))
+            {
+                Console.Write("You take nothing.\n\n\n>");
+                return;
+            }
 
             if (item == "all")
-                player.TakeAllItems(currentRoom);
+                player.TryToTakeAllItems(currentRoom);
             else
-                player.TakeItem(item, currentRoom);
+                player.TryToTakeItem(item, currentRoom);
+        }
+
+        private static void HandlePuttingItem(string[] words, Player player, Room currentRoom)
+        {
+            string[] items = RetrieveTwoObjectsFromInput(words, "Put");
+            if (items.Length != 2) return;
+
+            player.PutItem(items, currentRoom);
         }
 
         private static void HandleDroppingItem(string[] words, Player player, Room currentRoom)
@@ -299,7 +319,7 @@ namespace TextAdventures
             string? item = string.Empty;
             if (words.Length == 1)
             {
-                Console.Write($"{verb} what?\n> ");
+                Console.Write($"{verb} what?\n>> ");
                 item = Console.ReadLine();
                 if (string.IsNullOrWhiteSpace(item))
                 {
@@ -313,6 +333,43 @@ namespace TextAdventures
                     item += $"{word} ";
                 }
             return PrepareText(item);
+        }
+
+        private static string[] RetrieveTwoObjectsFromInput(string[] words, string verb)
+        {
+            string[] items = new string[2];
+            if (words.Length == 1)
+            {
+                Console.Write($"{verb} what where?\n>> ");
+                string? input = Console.ReadLine();
+                if (string.IsNullOrWhiteSpace(input))
+                {
+                    Console.Write($"You {verb.ToLower()} nothing nowhere.\n\n\n> ");
+                    return items;
+                }
+                input = PrepareText(input);
+                if (input.IndexOf("put") == 0)
+                    input = input.Remove(0, 4);
+                words = input.Split(' ', StringSplitOptions.RemoveEmptyEntries);
+            }
+            string[] targetWords = { "in", "on", "into", "inside" };
+            string[] foundTarget = words.Intersect(targetWords).ToArray();
+            if (foundTarget.Length != 1)
+            {
+                Console.Write(_incorrectSyntax);
+                return items;
+            }
+            int stopIndex = Array.IndexOf(words, foundTarget[0]);
+            string item = string.Join(' ',words,0,stopIndex);
+            string container = string.Join(' ',words,stopIndex + 1, words.Length - 1 - stopIndex);
+            if (string.IsNullOrWhiteSpace(item) || string.IsNullOrWhiteSpace(container))
+            {
+                Console.Write(_incorrectSyntax);
+                return items;
+            }
+            items[0] = item;
+            items[1] = container;
+            return items;
         }
     }
 }

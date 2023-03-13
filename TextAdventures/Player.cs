@@ -14,14 +14,15 @@ namespace TextAdventures
     {
         readonly HashSet<Item> _inventory;
         const int MaxCapacity = 100;
-        public int _currentCapacity = 92;
+        public int _currentCapacity = 2;
         bool _verbose;
-        readonly List<string> impossibleToTakeMessages = new() { "You can't be serious. ", "That's... imposible.", "You tried and tried, but alas, you failed to take it.", "As you thought just before trying, that couldn't be done." };
+        readonly List<string> impossibleToTakeMessages = new() { "You can't be serious.", "That's... imposible.", "You tried and tried, but alas, you failed to take it.", "As you thought just before trying, that couldn't be done." };
+        readonly List<string> implausibleToTakeMessages = new() { "That's just too heavy to be lugging around.", "That's... not a very good idea.", "Yeah... but why???", "Doing that would be terribly inconvenient." };
 
         public Player()
         {
-            Item wood = new("a small piece of wood", "You don't know why, but it may be a good idea to hold on to it.", "", 2, new HashSet<string> { "wood", "piece of wood", "wood piece" });
-            wood.HasBeenTaken = true;
+            Item wood = new("a small piece of wood", new HashSet<string> { "wood", "piece of wood", "wood piece" }, "You don't know why, but it may be a good idea to hold on to it.", "", 2);
+            wood.ShowFirstEncounterDescription = false;
             _inventory = new HashSet<Item>{ wood };
         }
 
@@ -72,31 +73,62 @@ namespace TextAdventures
         public void Look(Room room, bool readDescription)
         {
             Console.Write($"{room.Name}");
-            string text = string.Empty;
+            string roomDescriptionText = string.Empty;
+            string otherItemsText = string.Empty;
+            string containersText = string.Empty;
             if (readDescription || _verbose)
-                text += $"{room.Description} ";
-            foreach (var item in room.Items.Where(item => !item.HasBeenTaken).Skip(1))
+                roomDescriptionText += $"{room.Description} ";
+
+            HashSet<Item> allItems = GetAllItemsToLookAt(room);
+            foreach (Item item in allItems)
             {
-                text += $"{item.OriginalLocationDescription} ";
-            }
-            if (!string.IsNullOrWhiteSpace(text))
-            {
-                Console.Write("\n");
-                TextWriter.Write(text);
-            }
-            foreach (var item in room.Items.Where(item => item.HasBeenTaken))
-            {
-                Console.Write($"\nThere's {item.Name} here.");
-            }
-            foreach (var item in room.Items.Where(item => item is ContainerItem container && container.IsOpen && container.CurrentCapacity > 0))
-            {
-                Console.Write($"\nThe {TextParser.RemoveArticle(item.Name)} contains:");
-                foreach (var itemInside in (item as ContainerItem).Items)
+                if (item.ShowFirstEncounterDescription)
+                    roomDescriptionText += $"{item.FirstEncounterDescription} ";
+                else
+                    otherItemsText += $"\nThere's {item.Name} here.";
+                if (item is ContainerItem container && container.IsOpen && container.CurrentCapacity > 0)
                 {
-                    Console.Write($"\n  {itemInside.Name}");
+                    containersText += $"\nThe {TextParser.RemoveArticle(item.Name)} contains:";
+                    foreach (var itemInside in container.Items)
+                        containersText += $"\n  {itemInside.Name}";
                 }
             }
+            if (!string.IsNullOrWhiteSpace(roomDescriptionText))
+            {
+                Console.Write("\n");
+                TextWriter.Write(roomDescriptionText);
+            }
+            Console.Write(otherItemsText);
+            Console.Write(containersText);
             Console.Write("\n\n\n> ");
+        }
+
+        private HashSet<Item> GetAllItemsToLookAt(Room room)
+        {
+            HashSet<Item> items = new(room.Items);
+            foreach (var surface in room.Surfaces)
+            {
+                items.UnionWith(surface.Items);
+            }
+            return items;
+        }
+
+        private bool ItemIsASurface(string keyword, Room room)
+        {
+            Surface? surface = (from s in room.Surfaces
+                                 where s.Keywords.Contains(keyword)
+                                 select s).FirstOrDefault();
+
+            if (surface == null)
+                return false;
+
+            Random random = new();
+            if (surface.Weight == 999)
+                Console.Write(impossibleToTakeMessages[random.Next(0, impossibleToTakeMessages.Count)]);
+            else
+                Console.Write(implausibleToTakeMessages[random.Next(0, implausibleToTakeMessages.Count)]);
+            Console.Write("\n\n\n> ");
+            return true;       
         }
 
         private bool ItemIsInInventory(string keyword)
@@ -136,6 +168,7 @@ namespace TextAdventures
                     _inventory.Add(itemToTake);
                     _currentCapacity += itemToTake.Weight;
                     containerItem.RemoveItem(itemToTake);
+                    item.ShowFirstEncounterDescription = false;
                     Console.Write($"You took the {TextParser.RemoveArticle(itemToTake.Name)}.\n\n\n> ");
                     return true;
                 }
@@ -148,56 +181,85 @@ namespace TextAdventures
             return false;
         }
 
-        public void TakeItem(string keyword, Room room)
+        private bool ItemIsOnSurface(string keyword, Room room)
         {
-            if (ItemIsInInventory(keyword)) return;
+            Item? item = (from surface in room.Surfaces
+                        from i in surface.Items
+                        where i.Keywords.Contains(keyword)
+                        select i).FirstOrDefault();
 
-            
-            Item? itemToTake = room.Items.FirstOrDefault(item => item.Keywords.Contains(keyword));
-            if (itemToTake == null)
-            {
-                if (ItemIsInsideContainer(keyword, room)) return;
+            if (item == null) return false;
+            return true;
+        }
 
-                Console.Write($"There's no {keyword} around.\n\n\n> ");
-                return;
-            }
-
-            if (itemToTake.Weight > MaxCapacity)
+        private bool CanYouTakeTheItem(Item item, string keyword)
+        {
+            if (item.Weight > MaxCapacity)
             {
                 Random random = new();
-                Console.Write(impossibleToTakeMessages[random.Next(0,impossibleToTakeMessages.Count)]);
+                if (item.Weight == 999)
+                    Console.Write(impossibleToTakeMessages[random.Next(0, impossibleToTakeMessages.Count)]);
+                else
+                    Console.Write(impossibleToTakeMessages[random.Next(0, implausibleToTakeMessages.Count)]);
                 Console.Write("\n\n\n> ");
-                return;
+                return false;
             }
 
-            if (itemToTake is ContainerItem containerItem)
+            if (item is ContainerItem containerItem)
             {
                 if (_currentCapacity + containerItem.Weight + containerItem.CurrentCapacity > MaxCapacity)
                 {
                     Console.Write($"You're carrying too much to take the {keyword}.\n\n\n> ");
-                    return;
+                    return false;
                 }
             }
-            else if (_currentCapacity + itemToTake.Weight > MaxCapacity)
+
+            else if (_currentCapacity + item.Weight > MaxCapacity)
             {
                 Console.Write($"You're carrying too much to take the {keyword}.\n\n\n> ");
+                return false;
+            }
+            return true;
+        }
+
+        public void TryToTakeItem(string keyword, Room room)
+        {
+            if (ItemIsInInventory(keyword)) return;
+
+            if (ItemIsASurface(keyword, room)) return;
+
+            if (ItemIsOnSurface(keyword, room)) return;
+
+            if (ItemIsInsideContainer(keyword, room)) return;
+            
+            Item? itemToTake = room.Items.FirstOrDefault(item => item.Keywords.Contains(keyword));
+            if (itemToTake == null)
+            {
+                Console.Write($"There's no {keyword} around.\n\n\n> ");
                 return;
             }
-            
-            _inventory.Add(itemToTake);
-            _currentCapacity += itemToTake.Weight;
-            room.Items.Remove(itemToTake);
-            itemToTake.HasBeenTaken = true;
-            if (itemToTake is ContainerItem containerItem2)
+
+            if (!CanYouTakeTheItem(itemToTake, keyword)) return;
+
+            TakeItem(itemToTake, room);
+        }
+
+        private void TakeItem(Item item, Room room)
+        {
+            _inventory.Add(item);
+            _currentCapacity += item.Weight;
+            room.Items.Remove(item);
+            item.ShowFirstEncounterDescription = false;
+            if (item is ContainerItem containerItem2)
             {
                 _currentCapacity += containerItem2.CurrentCapacity;
             }
-            Console.Write($"You took the {TextParser.RemoveArticle(itemToTake.Name)}.\n\n\n> ");
+            Console.Write($"You took the {TextParser.RemoveArticle(item.Name)}.\n\n\n> ");
         }
 
-        public void TakeAllItems(Room room)
+        public void TryToTakeAllItems(Room room)
         {
-            if (room.Items.Count <= 1)
+            if (room.Items.Count < 1)
             {
                 Console.Write("There's nothing to take here.\n\n\n> ");
                 return;
@@ -213,7 +275,7 @@ namespace TextAdventures
                         _currentCapacity += containerItem.Weight;
                         _currentCapacity += containerItem.CurrentCapacity;
                         room.Items.Remove(containerItem);
-                        containerItem.HasBeenTaken = true;
+                        containerItem.ShowFirstEncounterDescription = false;
                         text += $" the {TextParser.RemoveArticle(containerItem.Name)},";
                     }
                 }
@@ -222,7 +284,7 @@ namespace TextAdventures
                     _inventory.Add(item);
                     _currentCapacity += item.Weight;
                     room.Items.Remove(item);
-                    item.HasBeenTaken = true;
+                    item.ShowFirstEncounterDescription = false;
                     text += $" the {TextParser.RemoveArticle(item.Name)},";
                 }
             }
@@ -241,6 +303,13 @@ namespace TextAdventures
             }
             Console.Write("\n\n\n> ");
             return;
+        }
+
+        public void PutItem(string[] items, Room room)
+        {
+            //probablemente podriamos buscar primero que existan los items en la habitacion (incluidos contenedores) o en el inventario
+            //en caso que no pues ya ahi muere. 
+            //si si estan 
         }
 
         public void DropItem(string keyword, Room room)
