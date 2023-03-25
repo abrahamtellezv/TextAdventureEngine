@@ -4,7 +4,6 @@ using System.ComponentModel;
 using System.ComponentModel.Design;
 using System.Diagnostics.Metrics;
 using System.Linq;
-using System.Security.Cryptography.X509Certificates;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -12,7 +11,7 @@ namespace TextAdventures
 {
     internal class Player
     {
-        readonly HashSet<Item> _inventory;
+        public readonly HashSet<Item> _inventory;
         const int MaxCapacity = 100;
         public int _currentCapacity = 2;
         bool _verbose;
@@ -55,19 +54,25 @@ namespace TextAdventures
         public void CheckInventory()
         {
             Console.Write("Inventory:");
-            foreach (var item in _inventory)
-            {
-                Console.Write($"\n  {TextParser.RemoveArticle(item.Name)}");
-                if (item is ContainerItem containerItem && containerItem.CurrentCapacity > 0)
-                {
-                    Console.Write($", which contains:");
-                    foreach (Item itemInside in containerItem.Items)
-                    {
-                        Console.Write($"\n    {itemInside.Name}");
-                    }
-                }
-            }
+            WriteOutAllItemsInside(_inventory);
             Console.Write("\n\n\n> ");
+        }
+
+        public void WriteOutAllItemsInside(HashSet<Item>? items, int spaces = 2)
+        {
+            if (items is null) return;
+
+            if (spaces > 2)
+                Console.Write($", which contains:");
+            string margin = new(' ', spaces);
+            foreach (Item item in items)
+            {
+                Console.Write($"\n{margin}{TextParser.RemoveArticle(item.Name)}");
+                if (item is not ContainerItem containerItem || containerItem.Items.Count == 0)
+                    continue;
+
+                WriteOutAllItemsInside(containerItem.Items, spaces + 2);
+            }
         }
 
         public void Look(Room room, bool readDescription)
@@ -86,7 +91,7 @@ namespace TextAdventures
                     roomDescriptionText += $"{item.FirstEncounterDescription} ";
                 else
                     otherItemsText += $"\nThere's {item.Name} here.";
-                if (item is ContainerItem container && container.IsOpen && container.CurrentCapacity > 0)
+                if (item is ContainerItem container && container.IsOpen && container.Items.Count > 0)
                 {
                     containersText += $"\nThe {TextParser.RemoveArticle(item.Name)} contains:";
                     foreach (var itemInside in container.Items)
@@ -103,7 +108,7 @@ namespace TextAdventures
             Console.Write("\n\n\n> ");
         }
 
-        private HashSet<Item> GetAllItemsToLookAt(Room room)
+        private static HashSet<Item> GetAllItemsToLookAt(Room room)
         {
             HashSet<Item> items = new(room.Items);
             foreach (var surface in room.Surfaces)

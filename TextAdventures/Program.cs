@@ -43,7 +43,7 @@ namespace TextAdventures
             Room outside = new("Outside", "You're outside the house, it's too dark to go wandering any further, you should go back inside.");
             Room entrance = new("Entrance", "The entrance to the house, you can see one of my threaded rainbow pieces here. There's a flight of stairs leading up to the study, while a small flight leads down to a bathroom. The living room lies to the north. The smell of the kitchen comes from the east.");
             Room downstairsBathroom = new("Downstairs bathroom", "This small bathroom was, somehow, one of the best rooms in the house. The stairs lead up to the entrance.");
-            Room garden = new("Garden", "Somehow the grass is still green in some patches, sadly, the potted plants and the trees have all died. The living and dining rooms lie to the southwest and southeast respectively");
+            Room garden = new("Garden", "Somehow there are still some patches of green grass. Sadly, the potted plants and the trees have all died. The living and dining rooms lie to the southwest and southeast respectively");
             Room kitchen = new("Kitchen", "You can smell the years of cooking that have happened here. The entrance lies to the west. North is the dining room. The laundry room can be seen to the south.");
             Room laundryRoom = new("Laundry room", "The trusty old washing machine takes most of the space here. The kitchen is to the north. A door leads to the service area to the south.");
             Room livingRoom = new("Living room", "The couch has definitely seen better times and the tv doesn't seem to work anymore. You see the dining room to the east and the entrance to the south.");
@@ -109,12 +109,15 @@ namespace TextAdventures
             ball.ShowFirstEncounterDescription = false;
             Surface whiteTable = new("white table", new HashSet<string> { "table", "white table" }, "A small white side table, the paint chipped off here and there.", 200);
             entrance.AddSurface(whiteTable);
-            Item stuff = new("stuff", new HashSet<string> { "stuff", "some stuff", "the stuff" }, "Some stuff", "There's some stuff on the table also.", 1);
-            whiteTable.AddItems(stuff);
+            ContainerItem backpack = new("a backpack", new HashSet<string> { "backpack" }, "A small greenish backpack", "There's a backpack on the table.", 10, 20, 0, isOpen: true, canBeClosed: true);
+            Item stuff = new("some stuff", new HashSet<string> { "stuff", "some stuff", "the stuff" }, "Some stuff", "There's some stuff on the table also.", 1);
+            backpack.AddItems(stuff);
+            whiteTable.AddItems(backpack);
 
             bag.AddItems(ball);
+            backpack.AddItems(bag);
             
-            entrance.AddItems(keys, pen);
+            entrance.AddItems(keys, pen, backpack);
             kitchen.AddItems(cake);
             livingRoom.AddItems(bag, soda);
 
@@ -126,16 +129,11 @@ namespace TextAdventures
             Assembly assembly = Assembly.GetExecutingAssembly();
             string roomsFile = "TextAdventures.Rooms.json";
 
-            using Stream? stream = assembly.GetManifestResourceStream(roomsFile);
-            
-            if (stream == null)
-            {
-                throw new FileNotFoundException($"Resource {roomsFile} not found");
-            }
-
+            using Stream? stream = assembly.GetManifestResourceStream(roomsFile) ?? throw new FileNotFoundException($"Resource {roomsFile} not found");
             using StreamReader reader = new(stream);
-            var json = reader.ReadToEnd();
-            return JsonConvert.DeserializeObject<HashSet<Room>>(json);
+            var json = reader.ReadToEnd(); 
+            var rooms = JsonConvert.DeserializeObject<HashSet<Room>>(json);
+            return rooms ?? throw new InvalidOperationException("Deserialization failed, there seems to be a problem with the JSON file");
         }
     }
 }
