@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace TextAdventures
 {
-    internal class Item
+    public class Item
     {
         public string Name { get; private set; }
         public HashSet<string> Keywords { get; private set; }
@@ -25,7 +25,7 @@ namespace TextAdventures
         }
     }
 
-    internal class ContainerItem : Item
+    public class ContainerItem : Item
     {
         public HashSet<Item> Items { get; private set; }
 
@@ -50,10 +50,12 @@ namespace TextAdventures
         {
             foreach (Item item in items)
             {
+                string container = string.Join(" ", (Name.Split(' ')).Skip(1));
+                string itemToStore = string.Join(" ", (item.Name.Split(' ')).Skip(1));
                 if (item.Weight > MaxCapacity)
-                    Console.Write($"The {TextParser.RemoveArticle(Name)} can't hold the {item.Name}.\n");
+                    Console.Write($"The {container} can't hold the {itemToStore}.\n");
                 else if (CurrentCapacity + item.Weight > MaxCapacity)
-                    Console.Write($"There are too many things in the {TextParser.RemoveArticle(Name)} to fit the {TextParser.RemoveArticle(item.Name)}\n");
+                    Console.Write($"There are too many things in the {container} to fit the {itemToStore}\n");
                 else
                 {
                     CurrentCapacity += item.Weight;

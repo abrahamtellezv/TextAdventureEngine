@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace TextAdventures
 {
-    internal class Surface
+    public class Surface
     {
         public string Name { get; private set; }
         public HashSet<string> Keywords { get; private set; }

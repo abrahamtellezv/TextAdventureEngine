@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace TextAdventures
 {
-    internal class Room
+    public class Room
     {
         public string Name { get; private set; }
         public string Description { get; private set; }
